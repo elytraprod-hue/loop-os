@@ -68,7 +68,7 @@ export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
             flexShrink: 0,
           }}
         >
-          <span style={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>L</span>
+          <span style={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>{tenant.name.charAt(0)}</span>
         </div>
         {!collapsed && (
           <span

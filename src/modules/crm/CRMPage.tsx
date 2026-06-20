@@ -1,22 +1,39 @@
-// src/modules/crm/CRMPage.tsx
 import { useState } from 'react';
 import { Plus, Search, Users } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
-
-const mockClients = [
-  { id: '1', name: 'Studio Globo', status: 'active', email: 'contato@studioglobo.com', company: 'Globo' },
-  { id: '2', name: 'Agência Criativa', status: 'prospect', email: 'oi@agencia.com', company: 'Agência Criativa' },
-  { id: '3', name: 'Produtora Aurora', status: 'active', email: 'aurora@produtora.com', company: 'Aurora Filmes' },
-  { id: '4', name: 'Mídia Digital', status: 'inactive', email: 'midia@digital.com', company: 'Mídia Digital Ltda' },
-];
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { ErrorState } from '../../components/ui/ErrorState';
+import { useWorkspaceQuery, useClientsQuery, useCreateClientMutation } from '../../hooks/useDbQuery';
+import { toast } from 'sonner';
 
 export const CRMPage = () => {
+  const { data: workspace, isLoading: wsLoading } = useWorkspaceQuery();
+  const workspaceId = workspace?.id;
+
+  const { data: clients, isLoading, error, refetch } = useClientsQuery(workspaceId);
+  const createClient = useCreateClientMutation();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [company, setCompany] = useState('');
 
-  const filtered = mockClients.filter(c =>
+  const filtered = (clients ?? []).filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!workspaceId) return;
+    createClient.mutate(
+      { workspace_id: workspaceId, name, email, company },
+      { onSuccess: () => { toast.success('Cliente criado'); setModalOpen(false); setName(''); setEmail(''); setCompany(''); } }
+    );
+  };
+
+  const isLoadingData = wsLoading || isLoading;
 
   return (
     <div className="animate-fadeUp">
@@ -43,53 +60,70 @@ export const CRMPage = () => {
         </div>
       </div>
 
-      <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--glass-border)', fontSize: 13, color: 'var(--text-muted)' }}>
-              <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Nome</th>
-              <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Empresa</th>
-              <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Email</th>
-              <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((c) => (
-              <tr key={c.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
-                <td style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Users size={14} color="var(--accent)" />
-                  </div>
-                  <span style={{ fontWeight: 500 }}>{c.name}</span>
-                </td>
-                <td style={{ padding: '14px 20px', color: 'var(--text-secondary)', fontSize: 14 }}>{c.company}</td>
-                <td style={{ padding: '14px 20px', color: 'var(--text-secondary)', fontSize: 14 }}>{c.email}</td>
-                <td style={{ padding: '14px 20px' }}>
-                  <span className={`badge ${c.status === 'active' ? 'badge-success' : c.status === 'prospect' ? 'badge-info' : 'badge-neutral'}`}>
-                    {c.status}
-                  </span>
-                </td>
+      {isLoadingData ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 64 }}>
+          <LoadingSpinner size="lg" />
+        </div>
+      ) : error ? (
+        <ErrorState description="Não foi possível carregar os clientes." onRetry={() => refetch()} />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          title="Nenhum cliente"
+          description="Crie seu primeiro cliente para começar"
+          action={{ label: 'Novo Cliente', onClick: () => setModalOpen(true) }}
+          icon={<Users size={24} />}
+        />
+      ) : (
+        <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--glass-border)', fontSize: 13, color: 'var(--text-muted)' }}>
+                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Nome</th>
+                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Empresa</th>
+                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Email</th>
+                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filtered.map((c) => (
+                <tr key={c.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                  <td style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Users size={14} color="var(--accent)" />
+                    </div>
+                    <span style={{ fontWeight: 500 }}>{c.name}</span>
+                  </td>
+                  <td style={{ padding: '14px 20px', color: 'var(--text-secondary)', fontSize: 14 }}>{c.company}</td>
+                  <td style={{ padding: '14px 20px', color: 'var(--text-secondary)', fontSize: 14 }}>{c.email}</td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <span className={`badge ${c.status === 'active' ? 'badge-success' : c.status === 'prospect' ? 'badge-info' : 'badge-neutral'}`}>
+                      {c.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo Cliente">
-        <form style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <Modal open={modalOpen} onClose={() => { setModalOpen(false); setName(''); setEmail(''); setCompany(''); }} title="Novo Cliente">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
             <label style={{ display: 'block', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Nome</label>
-            <input className="input-base" placeholder="Nome do cliente" />
+            <input className="input-base" placeholder="Nome do cliente" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Email</label>
-            <input className="input-base" type="email" placeholder="email@cliente.com" />
+            <input className="input-base" type="email" placeholder="email@cliente.com" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Empresa</label>
-            <input className="input-base" placeholder="Nome da empresa" />
+            <input className="input-base" placeholder="Nome da empresa" value={company} onChange={(e) => setCompany(e.target.value)} />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ marginTop: 8 }}>Salvar</button>
+          <button type="submit" className="btn btn-primary" style={{ marginTop: 8 }} disabled={createClient.isPending}>
+            {createClient.isPending ? 'Salvando…' : 'Salvar'}
+          </button>
         </form>
       </Modal>
     </div>

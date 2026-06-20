@@ -1,47 +1,54 @@
-// src/components/ui/Button.tsx
 import React from 'react';
-import { cn } from '../../lib/utils';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success';
   size?: 'sm' | 'md' | 'lg';
+  loading?: boolean;
   isLoading?: boolean;
+  icon?: React.ReactNode;
+  asChild?: boolean;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', isLoading, disabled, children, ...props }, ref) => {
-    const baseStyles = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
-    
-    const variants = {
-      primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-      outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-      ghost: 'hover:bg-accent hover:text-accent-foreground',
-    };
-    
-    const sizes = {
-      sm: 'h-9 px-3 text-sm',
-      md: 'h-10 px-4 py-2',
-      lg: 'h-11 px-8 text-lg',
-    };
-    
+  ({ className, variant = 'primary', size = 'md', loading, isLoading, disabled, icon, children, style, ...props }, ref) => {
+    const isBusy = loading || isLoading;
+    const variantClass = {
+      primary: 'btn-primary',
+      secondary: 'btn-secondary',
+      outline: 'btn-outline',
+      ghost: 'btn-ghost',
+      danger: 'btn-danger',
+      success: 'btn-success',
+    }[variant];
+
+    const sizeClass = {
+      sm: 'btn-sm',
+      md: '',
+      lg: 'btn-lg',
+    }[size];
+
     return (
       <button
         ref={ref}
-        className={cn(baseStyles, variants[variant], sizes[size], className)}
-        disabled={disabled || isLoading}
+        className={`btn ${variantClass} ${sizeClass} ${className || ''}`.trim()}
+        disabled={disabled || isBusy}
+        aria-busy={isBusy || undefined}
+        style={style}
         {...props}
       >
-        {isLoading ? (
-          <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        {isBusy ? (
+          <svg style={{ animation: 'spin 1s linear infinite' }} width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" opacity="0.25" />
+            <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" opacity="0.75" />
           </svg>
+        ) : icon ? (
+          <span style={{ display: 'inline-flex' }} aria-hidden="true">{icon}</span>
         ) : null}
         {children}
       </button>
     );
   }
 );
+Button.displayName = 'Button';
 
 export type { ButtonProps };

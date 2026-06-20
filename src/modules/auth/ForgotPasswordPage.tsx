@@ -1,4 +1,3 @@
-// src/modules/auth/ForgotPasswordPage.tsx
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -47,16 +46,16 @@ export const ForgotPasswordPage = () => {
 
   if (sent) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
+      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', padding: '0 16px' }}>
+        <Card style={{ width: '100%', maxWidth: 448 }}>
+          <CardHeader style={{ textAlign: 'center' }}>
             <CardTitle>Email enviado!</CardTitle>
             <CardDescription>
               Verifique sua caixa de entrada para redefinir sua senha.
             </CardDescription>
           </CardHeader>
-          <CardFooter className="justify-center">
-            <Link to="/login" className="text-sm text-accent hover:underline">
+          <CardFooter style={{ justifyContent: 'center' }}>
+            <Link to="/login" style={{ fontSize: 14, color: 'var(--accent)', textDecoration: 'none' }}>
               Voltar ao login
             </Link>
           </CardFooter>
@@ -66,9 +65,9 @@ export const ForgotPasswordPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+    <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', padding: '0 16px' }}>
+      <Card style={{ width: '100%', maxWidth: 448 }}>
+        <CardHeader style={{ textAlign: 'center' }}>
           <CardTitle>Redefinir senha</CardTitle>
           <CardDescription>
             Digite seu email para receber o link de redefinição
@@ -76,7 +75,7 @@ export const ForgotPasswordPage = () => {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <Input
               {...register('email')}
               label="Email"
@@ -86,19 +85,19 @@ export const ForgotPasswordPage = () => {
             />
 
             {error && (
-              <div className="rounded-md bg-error/10 p-3 text-sm text-error">
+              <div style={{ background: 'rgba(239,68,68,.1)', borderRadius: 8, padding: 12, fontSize: 14, color: 'var(--text-error)' }}>
                 {error}
               </div>
             )}
 
-            <Button type="submit" className="w-full" isLoading={isLoading}>
+            <Button type="submit" isLoading={isLoading}>
               Enviar link
             </Button>
           </form>
         </CardContent>
 
-        <CardFooter className="justify-center">
-          <Link to="/login" className="text-sm text-accent hover:underline">
+        <CardFooter style={{ justifyContent: 'center' }}>
+          <Link to="/login" style={{ fontSize: 14, color: 'var(--accent)', textDecoration: 'none' }}>
             Voltar ao login
           </Link>
         </CardFooter>

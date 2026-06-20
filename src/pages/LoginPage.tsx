@@ -1,8 +1,10 @@
-// src/pages/LoginPage.tsx
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { tenant } from '../config/tenant';
 import { Modal } from '../components/ui/Modal';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../modules/auth/AuthProvider';
+import { toast } from 'sonner';
 
 interface LoginModalProps {
   open: boolean;
@@ -12,10 +14,25 @@ interface LoginModalProps {
 export const LoginModal = ({ open, onClose }: LoginModalProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: integrate with Supabase auth
+    setLoading(true);
+    setError(null);
+    try {
+      await signIn(email, password);
+      toast.success('Login realizado');
+      onClose();
+      navigate('/app/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao fazer login');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGitHub = async () => {
@@ -36,7 +53,7 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
             margin: '0 auto 12px',
           }}
         >
-          <span style={{ color: '#fff', fontWeight: 800, fontSize: 20 }}>L</span>
+          <span style={{ color: '#fff', fontWeight: 800, fontSize: 20 }}>{tenant.name.charAt(0)}</span>
         </div>
         <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, marginBottom: 4 }}>
           {tenant.name}
@@ -124,8 +141,15 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
           />
         </div>
 
+        {error && (
+          <div style={{ background: 'rgba(239,68,68,.1)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: 'var(--danger)' }}>
+            {error}
+          </div>
+        )}
+
         <button
           type="submit"
+          disabled={loading}
           style={{
             width: '100%',
             padding: 12,
@@ -135,16 +159,17 @@ export const LoginModal = ({ open, onClose }: LoginModalProps) => {
             fontWeight: 700,
             fontSize: 15,
             border: 'none',
-            cursor: 'pointer',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? .6 : 1,
             marginTop: 4,
           }}
         >
-          Entrar
+          {loading ? 'Entrando...' : 'Entrar'}
         </button>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 8 }}>
-          <a href="/forgot-password" style={{ color: 'var(--text-muted)' }}>Esqueceu a senha?</a>
-          <a href="/signup" style={{ color: 'var(--accent)' }}>Criar conta</a>
+          <Link to="/forgot-password" style={{ color: 'var(--text-muted)' }}>Esqueceu a senha?</Link>
+          <Link to="/register" style={{ color: 'var(--accent)' }}>Criar conta</Link>
         </div>
       </form>
     </Modal>

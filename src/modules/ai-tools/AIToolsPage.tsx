@@ -1,30 +1,70 @@
-// src/modules/ai-tools/AIToolsPage.tsx
 import { useState } from 'react';
-import { Brain, Sparkles, MessageSquare, FileText, Pen, Camera, Mic, Music, Image, Globe, Code, Zap, BarChart } from 'lucide-react';
+import { Brain, Sparkles, MessageSquare, FileText, Pen, Camera, Mic, Music, Image, Globe, Code, Zap, BarChart, Loader2 } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
+import { useAuth } from '../auth/AuthProvider';
+import { useWorkspaceQuery, useCreateAiRunMutation } from '../../hooks/useDbQuery';
 
 const tools = [
-  { icon: MessageSquare, name: 'Gerador de Briefing', desc: 'Cria briefings completos baseados em inputs' },
-  { icon: FileText, name: 'Redator de Roteiros', desc: 'Estrutura e escreve roteiros profissionais' },
-  { icon: Pen, name: 'Revisor de Texto', desc: 'Corrige e aprimora textos' },
-  { icon: Camera, name: 'Análise de Cenas', desc: 'Sugere ângulos e enquadramentos' },
-  { icon: Mic, name: 'Transcrição', desc: 'Transcreve áudio para texto' },
-  { icon: Music, name: 'Curadoria Musical', desc: 'Sugere trilhas e estilos' },
-  { icon: Image, name: 'Moodboard Automático', desc: 'Gera referências visuais' },
-  { icon: Globe, name: 'Tradutor', desc: 'Traduz roteiros e documentos' },
-  { icon: Code, name: 'Gerador de OS', desc: 'Cria ordens de serviço técnicas' },
-  { icon: Zap, name: 'Otimizador', desc: 'Otimiza cronogramas e recursos' },
-  { icon: BarChart, name: 'Analisador de Dados', desc: 'Analisa métricas de produção' },
-  { icon: Sparkles, name: 'Assistente Criativo', desc: 'Brainstorming e ideação' },
+  { id: '01', icon: MessageSquare, name: 'Gerador de Briefing', desc: 'Cria briefings completos baseados em inputs' },
+  { id: '02', icon: FileText, name: 'Redator de Roteiros', desc: 'Estrutura e escreve roteiros profissionais' },
+  { id: '03', icon: Pen, name: 'Revisor de Texto', desc: 'Corrige e aprimora textos' },
+  { id: '04', icon: Camera, name: 'Análise de Cenas', desc: 'Sugere ângulos e enquadramentos' },
+  { id: '05', icon: Mic, name: 'Transcrição', desc: 'Transcreve áudio para texto' },
+  { id: '06', icon: Music, name: 'Curadoria Musical', desc: 'Sugere trilhas e estilos' },
+  { id: '07', icon: Image, name: 'Moodboard Automático', desc: 'Gera referências visuais' },
+  { id: '08', icon: Globe, name: 'Tradutor', desc: 'Traduz roteiros e documentos' },
+  { id: '09', icon: Code, name: 'Gerador de OS', desc: 'Cria ordens de serviço técnicas' },
+  { id: '10', icon: Zap, name: 'Otimizador', desc: 'Otimiza cronogramas e recursos' },
+  { id: '11', icon: BarChart, name: 'Analisador de Dados', desc: 'Analisa métricas de produção' },
+  { id: '12', icon: Sparkles, name: 'Assistente Criativo', desc: 'Brainstorming e ideação' },
 ];
 
 export const AIToolsPage = () => {
+  const { user } = useAuth();
+  const { data: workspace } = useWorkspaceQuery();
+  const saveRun = useCreateAiRunMutation();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<typeof tools[0] | null>(null);
+  const [input, setInput] = useState('');
+  const [output, setOutput] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const openTool = (tool: typeof tools[0]) => {
     setSelectedTool(tool);
+    setInput('');
+    setOutput('');
     setModalOpen(true);
+  };
+
+  const handleExecute = async () => {
+    if (!selectedTool || !input.trim() || !user) return;
+    setLoading(true);
+    setOutput('');
+
+    try {
+      const res = await fetch('/api/ai-run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tool_id: selectedTool.id, input: input.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erro ao executar');
+      setOutput(data.output);
+
+      if (workspace?.id) {
+        saveRun.mutate({
+          workspace_id: workspace.id,
+          user_id: user.id,
+          tool_id: selectedTool.id,
+          input: { text: input.trim() },
+          output: data.output,
+        });
+      }
+    } catch (err) {
+      setOutput(err instanceof Error ? err.message : 'Erro ao executar ferramenta');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,13 +101,35 @@ export const AIToolsPage = () => {
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={selectedTool?.name || 'Ferramenta IA'}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <textarea className="input-base" rows={4} placeholder="Digite seu input aqui..." style={{ resize: 'vertical' }} />
-          <button className="btn btn-primary">
-            <Brain size={16} /> Executar
+          <textarea
+            className="input-base"
+            rows={4}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Digite seu input aqui..."
+            style={{ resize: 'vertical' }}
+          />
+          <button
+            className="btn btn-primary"
+            onClick={handleExecute}
+            disabled={loading || !input.trim()}
+          >
+            {loading ? <Loader2 size={16} className="animate-spin" /> : <Brain size={16} />}
+            {loading ? 'Executando...' : 'Executar'}
           </button>
-          <div className="glass" style={{ padding: 20, borderRadius: 12, minHeight: 100 }}>
-            <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>Resposta aparecerá aqui...</p>
-          </div>
+          {(output || loading) && (
+            <div className="glass" style={{ padding: 20, borderRadius: 12, minHeight: 100 }}>
+              {loading ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)', fontSize: 13 }}>
+                  <Loader2 size={16} className="animate-spin" /> Processando...
+                </div>
+              ) : (
+                <p style={{ color: 'var(--text-primary)', fontSize: 13, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                  {output}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </Modal>
     </div>

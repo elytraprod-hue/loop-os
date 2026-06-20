@@ -1,4 +1,5 @@
-// src/lib/utils.ts
-export function cn(...classes: (string | undefined | null | boolean)[]): string {
-  return classes.filter(Boolean).join(' ');
+import { clsx } from 'clsx';
+
+export function cn(...inputs: (string | undefined | null | false)[]): string {
+  return clsx(...inputs);
 }

@@ -1,6 +1,6 @@
-// src/components/Layout/AppShell.tsx
 import { useState, type ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
+import { Header } from './Header';
 import { FloatingDock } from './FloatingDock';
 
 interface AppShellProps {
@@ -22,6 +22,7 @@ export const AppShell = ({ children }: AppShellProps) => {
           minHeight: '100vh',
         }}
       >
+        <Header onMenuClick={() => setCollapsed(v => !v)} />
         <div className="animate-fadeIn">
           {children}
         </div>

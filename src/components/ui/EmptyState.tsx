@@ -1,4 +1,3 @@
-// src/components/ui/EmptyState.tsx
 import React from 'react';
 import { Button } from './Button';
 
@@ -14,12 +13,12 @@ interface EmptyStateProps {
 
 export const EmptyState = ({ title, description, action, icon }: EmptyStateProps) => {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface/50 p-12 text-center">
-      {icon && <div className="mb-4 text-text-muted">{icon}</div>}
-      <h3 className="text-lg font-semibold text-text-primary mb-2">{title}</h3>
-      <p className="text-sm text-text-muted mb-6 max-w-sm">{description}</p>
+    <div className="empty-state" role="status">
+      {icon && <div className="empty-state-icon">{icon}</div>}
+      <h3 className="empty-state-title">{title}</h3>
+      <p className="empty-state-text">{description}</p>
       {action && (
-        <Button onClick={action.onClick}>
+        <Button onClick={action.onClick} variant="primary">
           {action.label}
         </Button>
       )}

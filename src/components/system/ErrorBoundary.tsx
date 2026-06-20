@@ -1,5 +1,5 @@
-// src/components/system/ErrorBoundary.tsx
 import React from 'react';
+import { Button } from '../ui/Button';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -37,18 +37,13 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       }
 
       return (
-        <div className="flex min-h-screen items-center justify-center bg-background">
-          <div className="max-w-md text-center">
-            <h1 className="text-2xl font-bold text-text-primary mb-4">Oops! Something went wrong</h1>
-            <p className="text-text-muted mb-6">
+        <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--background)' }}>
+          <div style={{ maxWidth: 448, textAlign: 'center' }}>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>Oops! Something went wrong</h1>
+            <p style={{ color: 'var(--text-muted)', marginBottom: 24 }}>
               {this.state.error?.message || 'An unexpected error occurred'}
             </p>
-            <button
-              onClick={this.handleReset}
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              Try again
-            </button>
+            <Button onClick={this.handleReset}>Try again</Button>
           </div>
         </div>
       );

@@ -71,7 +71,7 @@ export const RegisterPage = () => {
       >
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-            <span style={{ color: '#fff', fontWeight: 800, fontSize: 20 }}>L</span>
+            <span style={{ color: '#fff', fontWeight: 800, fontSize: 20 }}>{tenant.name.charAt(0)}</span>
           </div>
           <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, marginBottom: 4 }}>{tenant.name}</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Crie sua conta</p>
