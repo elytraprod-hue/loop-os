@@ -7,13 +7,15 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { useAuth } from '../auth/AuthProvider';
-import { useWorkspaceQuery, useTransactionsQuery, useCreateTransactionMutation, useDeleteTransactionMutation } from '../../hooks/useDbQuery';
+import { useWorkspaceQuery, useTransactionsQuery, useProjectsQuery, useCreateTransactionMutation, useDeleteTransactionMutation } from '../../hooks/useDbQuery';
 
 export const FinancePage = () => {
   const { user } = useAuth();
   const { data: workspace } = useWorkspaceQuery();
   const workspaceId = (workspace as { id?: string } | null)?.id;
+  
   const { data: transactions, isLoading, error, refetch } = useTransactionsQuery(workspaceId);
+  const { data: projects } = useProjectsQuery(workspaceId);
   const createTx = useCreateTransactionMutation();
   const deleteTx = useDeleteTransactionMutation();
 
@@ -21,12 +23,24 @@ export const FinancePage = () => {
   const [type, setType] = useState('income');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('all');
+  const [modalProjectId, setModalProjectId] = useState<string>('');
 
   const txns = transactions ?? [];
 
-  const totalIncome = txns.filter(t => t.type === 'income').reduce((a, t) => a + Number(t.amount), 0);
-  const totalExpense = txns.filter(t => t.type === 'expense').reduce((a, t) => a + Number(t.amount), 0);
-  const pendingTotal = txns.filter(t => t.status === 'pending').reduce((a, t) => a + Number(t.amount), 0);
+  // Filtered transactions for calculation and listing
+  const filteredTxns = txns.filter(t => {
+    if (selectedProjectId === 'all') return true;
+    return t.project_id === selectedProjectId;
+  });
+
+  const totalIncome = filteredTxns.filter(t => t.type === 'income').reduce((a, t) => a + Number(t.amount), 0);
+  const totalExpense = filteredTxns.filter(t => t.type === 'expense').reduce((a, t) => a + Number(t.amount), 0);
+  const pendingTotal = filteredTxns.filter(t => t.status === 'pending').reduce((a, t) => a + Number(t.amount), 0);
+
+  const totalVolume = totalIncome + totalExpense;
+  const incomePercentage = totalVolume > 0 ? Math.round((totalIncome / totalVolume) * 100) : 0;
+  const expensePercentage = totalVolume > 0 ? Math.round((totalExpense / totalVolume) * 100) : 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +51,7 @@ export const FinancePage = () => {
         type,
         amount: parseFloat(amount),
         description: description || 'Sem descrição',
+        project_id: modalProjectId || null,
       },
       {
         onSuccess: () => {
@@ -45,6 +60,7 @@ export const FinancePage = () => {
           setType('income');
           setAmount('');
           setDescription('');
+          setModalProjectId('');
         },
         onError: (err) => toast.error(err.message),
       }
@@ -77,17 +93,33 @@ export const FinancePage = () => {
 
   return (
     <div className="animate-fadeUp">
-      <div className="page-hero" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+      <div className="page-hero" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 32 }}>
         <div>
           <h1>Financeiro</h1>
           <p>Gerencie receitas e despesas</p>
         </div>
-        <button onClick={() => setModalOpen(true)} className="btn btn-primary">
-          <Plus size={16} /> Nova Transação
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Projeto:</span>
+            <select
+              className="input-base"
+              style={{ padding: '8px 12px', fontSize: 13, minWidth: 180, background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 8 }}
+              value={selectedProjectId}
+              onChange={(e) => setSelectedProjectId(e.target.value)}
+            >
+              <option value="all">Todos os Projetos</option>
+              {(projects ?? []).map(p => (
+                <option key={p.id} value={p.id}>{p.title}</option>
+              ))}
+            </select>
+          </div>
+          <button onClick={() => { setModalProjectId(''); setModalOpen(true); }} className="btn btn--primary">
+            <Plus size={16} /> Nova Transação
+          </button>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
         {[
           { icon: TrendingUp, label: 'Receita', value: totalIncome, color: 'var(--success)' },
           { icon: TrendingDown, label: 'Despesas', value: totalExpense, color: 'var(--danger)' },
@@ -106,9 +138,60 @@ export const FinancePage = () => {
         ))}
       </div>
 
-      {txns.length === 0 ? (
+      {/* Gráfico de Distribuição Financeira */}
+      <div className="glass" style={{ padding: 24, borderRadius: 16, marginBottom: 32 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Distribuição de Fluxo de Caixa</h3>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+            Margem Operacional: <strong style={{ color: totalIncome - totalExpense >= 0 ? 'var(--accent)' : 'var(--danger)' }}>
+              {totalIncome > 0 ? Math.round(((totalIncome - totalExpense) / totalIncome) * 100) : 0}%
+            </strong>
+          </span>
+        </div>
+        
+        <div style={{ display: 'flex', width: '100%', height: 20, borderRadius: 10, overflow: 'hidden', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', marginBottom: 12 }}>
+          {totalIncome > 0 && (
+            <div style={{
+              width: `${incomePercentage}%`,
+              background: 'linear-gradient(90deg, var(--success-dim), var(--success))',
+              height: '100%',
+              transition: 'width 0.3s ease',
+              boxShadow: '0 0 10px rgba(74, 222, 128, 0.15)'
+            }} />
+          )}
+          {totalExpense > 0 && (
+            <div style={{
+              width: `${expensePercentage}%`,
+              background: 'linear-gradient(90deg, var(--danger-dim), var(--danger))',
+              height: '100%',
+              transition: 'width 0.3s ease',
+              boxShadow: '0 0 10px rgba(239, 68, 68, 0.15)'
+            }} />
+          )}
+          {totalIncome === 0 && totalExpense === 0 && (
+            <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: 11 }}>
+              Sem movimentações financeiras no escopo selecionado
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--success)' }} />
+            <span style={{ color: 'var(--text-secondary)' }}>Receitas:</span>
+            <strong style={{ color: 'var(--success)' }}>R$ {totalIncome.toLocaleString('pt-BR')} ({incomePercentage}%)</strong>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--danger)' }} />
+            <span style={{ color: 'var(--text-secondary)' }}>Despesas:</span>
+            <strong style={{ color: 'var(--danger)' }}>R$ {totalExpense.toLocaleString('pt-BR')} ({expensePercentage}%)</strong>
+          </div>
+        </div>
+      </div>
+
+      {filteredTxns.length === 0 ? (
         <EmptyState
-          title="Nenhuma transação"
+          title="Nenhuma transação encontrada"
           description="Adicione receitas e despesas para acompanhar seu financeiro"
           action={{ label: 'Nova Transação', onClick: () => setModalOpen(true) }}
         />
@@ -125,9 +208,16 @@ export const FinancePage = () => {
               </tr>
             </thead>
             <tbody>
-              {txns.map((t) => (
+              {filteredTxns.map((t) => (
                 <tr key={t.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
-                  <td style={{ padding: '14px 20px', fontWeight: 500 }}>{t.description}</td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <div style={{ fontWeight: 500 }}>{t.description}</div>
+                    {t.projects?.title && (
+                      <div style={{ fontSize: 11, color: 'var(--accent)', marginTop: 2 }}>
+                        Projeto: {t.projects.title}
+                      </div>
+                    )}
+                  </td>
                   <td style={{ padding: '14px 20px' }}>
                     <span className={`badge ${t.type === 'income' ? 'badge-success' : 'badge-danger'}`}>
                       {t.type === 'income' ? 'Receita' : 'Despesa'}
@@ -156,8 +246,8 @@ export const FinancePage = () => {
           <div>
             <label style={{ display: 'block', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Tipo</label>
             <select className="input-base" value={type} onChange={(e) => setType(e.target.value)}>
-              <option value="income">Receita</option>
-              <option value="expense">Despesa</option>
+              <option value="income">Receita (Faturamento)</option>
+              <option value="expense">Despesa (Custo)</option>
             </select>
           </div>
           <div>
@@ -168,7 +258,23 @@ export const FinancePage = () => {
             <label style={{ display: 'block', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Descrição</label>
             <input className="input-base" placeholder="Descrição da transação" value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
-          <button type="submit" className="btn btn-primary" disabled={createTx.isPending}>Salvar</button>
+          <div>
+            <label style={{ display: 'block', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Projeto Vinculado</label>
+            <select
+              className="input-base"
+              value={modalProjectId}
+              onChange={(e) => setModalProjectId(e.target.value)}
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 8 }}
+            >
+              <option value="">Nenhum (Lançamento Geral)</option>
+              {(projects ?? []).map(p => (
+                <option key={p.id} value={p.id}>{p.title}</option>
+              ))}
+            </select>
+          </div>
+          <button type="submit" className="btn btn--primary" disabled={createTx.isPending}>
+            {createTx.isPending ? 'Salvando...' : 'Salvar Transação'}
+          </button>
         </form>
       </Modal>
     </div>

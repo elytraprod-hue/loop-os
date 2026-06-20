@@ -1,21 +1,22 @@
-import { useParams } from 'react-router-dom';
-import { useState } from 'react';
-import { ArrowLeft, MessageSquare } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { VideoPlayer } from '../../components/ui/VideoPlayer';
+import { useParams, Link } from 'react-router-dom';
+import { useRef, useState } from 'react';
+import { ArrowLeft, MessageSquare, CheckCircle, AlertCircle } from 'lucide-react';
+import { VideoPlayer, type VideoPlayerRef } from '../../components/ui/VideoPlayer';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { Button } from '../../components/ui/Button';
-import { useDeliverableQuery, useReviewCommentsQuery, useCreateCommentMutation } from '../../hooks/useDbQuery';
+import { useDeliverableQuery, useReviewCommentsQuery, useCreateCommentMutation, useUpdateDeliverableMutation } from '../../hooks/useDbQuery';
 import { useAuth } from '../auth/AuthProvider';
 import { toast } from 'sonner';
 
 export const VideoPlayerPage = () => {
   const { deliverableId } = useParams();
   const { user } = useAuth();
+  const playerRef = useRef<VideoPlayerRef>(null);
   const { data: deliverable, isLoading, error, refetch } = useDeliverableQuery(deliverableId);
   const { data: comments, refetch: refetchComments } = useReviewCommentsQuery(deliverableId);
   const createComment = useCreateCommentMutation();
+  const updateDeliverable = useUpdateDeliverableMutation();
   const [currentTime, setCurrentTime] = useState(0);
   const [commentText, setCommentText] = useState('');
 
@@ -34,6 +35,20 @@ export const VideoPlayerPage = () => {
     );
   };
 
+  const handleUpdateStatus = (newStatus: string) => {
+    if (!deliverable?.id) return;
+    updateDeliverable.mutate(
+      { id: deliverable.id, status: newStatus },
+      {
+        onSuccess: () => {
+          toast.success('Status de aprovação atualizado!');
+          refetch();
+        },
+        onError: (err) => toast.error(err.message)
+      }
+    );
+  };
+
   if (isLoading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 64 }}><LoadingSpinner size="lg" /></div>;
   if (error) return <ErrorState description="Erro ao carregar vídeo" onRetry={refetch} />;
   if (!deliverable) return <ErrorState description="Vídeo não encontrado" />;
@@ -44,13 +59,42 @@ export const VideoPlayerPage = () => {
         <ArrowLeft size={14} /> Voltar
       </Link>
 
-      <div className="page-hero" style={{ marginBottom: 24 }}>
-        <h1>{deliverable.title}</h1>
-        <p>{(deliverable as any).projects?.title}</p>
+      <div className="page-hero" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
+        <div>
+          <h1>{deliverable.title}</h1>
+          <p style={{ margin: 0, color: 'var(--text-secondary)' }}>{(deliverable as any).projects?.title || 'Sem projeto'}</p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div className="glass" style={{ padding: '8px 14px', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Status:</span>
+            <span className={`badge ${
+              deliverable.status === 'approved' ? 'badge-success' :
+              deliverable.status === 'adjustments' ? 'badge-danger' : 'badge-warning'
+            }`} style={{ textTransform: 'uppercase', fontSize: 11, fontWeight: 700 }}>
+              {deliverable.status === 'approved' ? 'Aprovado' :
+               deliverable.status === 'adjustments' ? 'Ajustes Solicitados' : 'Aguardando Revisão'}
+            </span>
+          </div>
+          <button
+            onClick={() => handleUpdateStatus('approved')}
+            className="btn btn--sm"
+            style={{ padding: '8px 14px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, background: 'var(--success-dim)', border: '1px solid var(--success)', color: 'var(--success)', fontWeight: 600, borderRadius: 8, cursor: 'pointer' }}
+          >
+            <CheckCircle size={14} /> Aprovar Versão
+          </button>
+          <button
+            onClick={() => handleUpdateStatus('adjustments')}
+            className="btn btn--sm"
+            style={{ padding: '8px 14px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, background: 'var(--danger-dim)', border: '1px solid var(--danger)', color: 'var(--danger)', fontWeight: 600, borderRadius: 8, cursor: 'pointer' }}
+          >
+            <AlertCircle size={14} /> Solicitar Ajustes
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20, alignItems: 'start' }}>
         <VideoPlayer
+          ref={playerRef}
           src={deliverable.hls_url || deliverable.video_url || undefined}
           onTimeUpdate={setCurrentTime}
         />
@@ -71,7 +115,10 @@ export const VideoPlayerPage = () => {
             {(comments || []).map((c: any) => (
               <div key={c.id} className="glass-soft" style={{ padding: '10px 14px', borderRadius: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 600, cursor: 'pointer' }}>
+                  <span
+                    onClick={() => playerRef.current?.seekTo(Number(c.timestamp_seconds))}
+                    style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 600, cursor: 'pointer' }}
+                  >
                     {formatTime(c.timestamp_seconds)}
                   </span>
                   <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>

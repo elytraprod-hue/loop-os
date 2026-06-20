@@ -49,7 +49,7 @@ export const RegisterPage = () => {
           <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 24 }}>
             Verifique seu email para confirmar o cadastro.
           </p>
-          <Link to="/" className="btn btn-primary" style={{ display: 'inline-flex', padding: '10px 24px' }}>
+          <Link to="/" className="btn btn--primary" style={{ display: 'inline-flex', padding: '10px 24px' }}>
             Ir para o login
           </Link>
         </div>
@@ -121,8 +121,10 @@ export const RegisterPage = () => {
             </div>
           )}
           <button
-            type="submit" disabled={isLoading}
-            style={{ width: '100%', padding: 12, borderRadius: 12, background: '#f97316', color: '#fff', fontWeight: 700, fontSize: 15, border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer', opacity: isLoading ? .6 : 1, marginTop: 4 }}
+            type="submit"
+            disabled={isLoading}
+            className="btn btn--primary"
+            style={{ width: '100%', justifyContent: 'center', marginTop: 4 }}
           >
             {isLoading ? 'Cadastrando...' : 'Cadastrar'}
           </button>

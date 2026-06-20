@@ -22,6 +22,31 @@ export function useWorkspaceQuery() {
   });
 }
 
+export function useCreateWorkspaceMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ name, userId }: { name: string; userId: string }) => {
+      const slug = `workspace-${Math.random().toString(36).substring(2, 10)}`;
+      const { data: ws, error: wsError } = await supabase
+        .from('workspaces')
+        .insert({ name, slug })
+        .select()
+        .single();
+      if (wsError) throw wsError;
+
+      const { error: memError } = await supabase
+        .from('workspace_members')
+        .insert({ workspace_id: ws.id, user_id: userId, role: 'admin' });
+      if (memError) throw memError;
+
+      return ws;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['workspace'] });
+    },
+  });
+}
+
 export function useWorkspaceMembersQuery(workspaceId?: string) {
   return useQuery({
     queryKey: ['workspace_members', workspaceId],
@@ -74,7 +99,7 @@ export function useClientQuery(clientId?: string) {
 export function useCreateClientMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { workspace_id: string; name: string; email?: string; phone?: string; company?: string }) => {
+    mutationFn: async (payload: { workspace_id: string; name: string; email?: string; phone?: string; company?: string; status?: string }) => {
       const { data, error } = await supabase.from('clients').insert(payload).select().single();
       if (error) throw error;
       return data;
@@ -155,7 +180,7 @@ export function useCreateProjectMutation() {
 export function useUpdateProjectMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...payload }: { id: string; title?: string; status?: string; type?: string; client_id?: string }) => {
+    mutationFn: async ({ id, ...payload }: { id: string; title?: string; status?: string; type?: string; client_id?: string; start_date?: string | null; end_date?: string | null; metadata?: Record<string, any> | null }) => {
       const { data, error } = await supabase.from('projects').update(payload).eq('id', id).select().single();
       if (error) throw error;
       return data;
@@ -360,7 +385,7 @@ export function useTransactionsQuery(workspaceId?: string) {
 export function useCreateTransactionMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { workspace_id: string; type: string; amount: number; description: string; date?: string }) => {
+    mutationFn: async (payload: { workspace_id: string; type: string; amount: number; description: string; date?: string; project_id?: string | null }) => {
       const { data, error } = await supabase.from('transactions').insert(payload).select().single();
       if (error) throw error;
       return data;

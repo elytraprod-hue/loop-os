@@ -486,3 +486,23 @@ h6 { font-size: 16px; line-height: 24px; }
   background: transparent; color: rgba(255,255,255,.5); font-size: 40px; z-index: 2;
 }
 .slide-btn:hover { color: #000; background: var(--accent); border-color: var(--accent); }
+
+/* ===== Responsive Helpers ===== */
+@media (max-width: 991px) {
+  .d-lg-none { display: flex !important; }
+  .d-lg-flex { display: none !important; }
+  .col-lg-6 { flex: 0 0 100% !important; max-width: 100% !important; }
+  .row { flex-direction: column; }
+}
+@media (min-width: 992px) {
+  .d-lg-none { display: none !important; }
+  .d-lg-flex { display: flex !important; }
+}
+@media (max-width: 575px) {
+  .d-sm-none { display: flex !important; }
+  .d-sm-inline-flex { display: none !important; }
+}
+@media (min-width: 576px) {
+  .d-sm-none { display: none !important; }
+  .d-sm-inline-flex { display: inline-flex !important; }
+}

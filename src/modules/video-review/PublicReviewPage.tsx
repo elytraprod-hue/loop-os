@@ -1,17 +1,20 @@
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
-import { VideoPlayer } from '../../components/ui/VideoPlayer';
+import { useRef, useState } from 'react';
+import { VideoPlayer, type VideoPlayerRef } from '../../components/ui/VideoPlayer';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { Button } from '../../components/ui/Button';
-import { useDeliverableByTokenQuery, useReviewCommentsQuery, useCreateCommentMutation } from '../../hooks/useDbQuery';
+import { useDeliverableByTokenQuery, useReviewCommentsQuery, useCreateCommentMutation, useUpdateDeliverableMutation } from '../../hooks/useDbQuery';
+import { CheckCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const PublicReviewPage = () => {
   const { publicToken } = useParams();
-  const { data: deliverable, isLoading, error } = useDeliverableByTokenQuery(publicToken);
+  const playerRef = useRef<VideoPlayerRef>(null);
+  const { data: deliverable, isLoading, error, refetch: refetchDeliverable } = useDeliverableByTokenQuery(publicToken);
   const { data: comments, refetch: refetchComments } = useReviewCommentsQuery(deliverable?.id);
   const createComment = useCreateCommentMutation();
+  const updateDeliverable = useUpdateDeliverableMutation();
   const [currentTime, setCurrentTime] = useState(0);
   const [commentText, setCommentText] = useState('');
   const [guestName, setGuestName] = useState('');
@@ -38,6 +41,20 @@ export const PublicReviewPage = () => {
     );
   };
 
+  const handleUpdateStatus = (newStatus: string) => {
+    if (!deliverable?.id) return;
+    updateDeliverable.mutate(
+      { id: deliverable.id, status: newStatus },
+      {
+        onSuccess: () => {
+          toast.success('Status da revisão atualizado!');
+          refetchDeliverable();
+        },
+        onError: (err) => toast.error(err.message)
+      }
+    );
+  };
+
   if (isLoading) return <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}><LoadingSpinner size="lg" /></div>;
   if (error) return <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}><ErrorState description="Link de review inválido ou expirado" /></div>;
   if (!deliverable) return null;
@@ -54,10 +71,48 @@ export const PublicReviewPage = () => {
       </div>
 
       <VideoPlayer
+        ref={playerRef}
         src={deliverable.hls_url || deliverable.video_url || undefined}
         onTimeUpdate={setCurrentTime}
         className="animate-fadeUp"
       />
+
+      {/* Approval Status Card */}
+      <div className="glass" style={{ padding: 20, borderRadius: 16, marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+        <div>
+          <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Decisão da Versão</h3>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
+            Como cliente, aprove esta versão para entrega final ou solicite ajustes nos comentários abaixo.
+          </p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid var(--glass-border)' }}>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Status:</span>
+            <span className={`badge ${
+              deliverable.status === 'approved' ? 'badge-success' :
+              deliverable.status === 'adjustments' ? 'badge-danger' : 'badge-warning'
+            }`} style={{ textTransform: 'uppercase', fontSize: 10, fontWeight: 700 }}>
+              {deliverable.status === 'approved' ? 'Aprovado' :
+               deliverable.status === 'adjustments' ? 'Ajustes Solicitados' : 'Aguardando Revisão'}
+            </span>
+          </div>
+
+          <button
+            onClick={() => handleUpdateStatus('approved')}
+            className="btn btn--sm"
+            style={{ padding: '8px 14px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, background: 'var(--success-dim)', border: '1px solid var(--success)', color: 'var(--success)', fontWeight: 600, borderRadius: 8, cursor: 'pointer' }}
+          >
+            <CheckCircle size={14} /> Aprovar Versão
+          </button>
+          <button
+            onClick={() => handleUpdateStatus('adjustments')}
+            className="btn btn--sm"
+            style={{ padding: '8px 14px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, background: 'var(--danger-dim)', border: '1px solid var(--danger)', color: 'var(--danger)', fontWeight: 600, borderRadius: 8, cursor: 'pointer' }}
+          >
+            <AlertCircle size={14} /> Solicitar Ajustes
+          </button>
+        </div>
+      </div>
 
       <div style={{ marginTop: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -103,7 +158,10 @@ export const PublicReviewPage = () => {
           {(comments || []).map((c: any) => (
             <div key={c.id} className="glass-soft" style={{ padding: '10px 14px', borderRadius: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 600 }}>
+                <span
+                  onClick={() => playerRef.current?.seekTo(Number(c.timestamp_seconds))}
+                  style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 600, cursor: 'pointer' }}
+                >
                   {formatTime(c.timestamp_seconds)}
                 </span>
                 <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
