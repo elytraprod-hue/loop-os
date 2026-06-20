@@ -221,24 +221,28 @@ export function useDocumentsQuery(workspaceId?: string) {
 export function useCreateDocumentMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { workspace_id: string; project_id: string; title: string; type: string; content?: Record<string, unknown> }) => {
+    mutationFn: async (payload: { workspace_id: string; project_id?: string | null; title: string; type: string; content?: Record<string, unknown>; status?: string }) => {
       const { data, error } = await supabase.from('documents').insert(payload).select().single();
       if (error) throw error;
       return data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['documents'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['documents'] });
+    },
   });
 }
 
 export function useUpdateDocumentMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...payload }: { id: string; title?: string; type?: string; content?: Record<string, unknown>; status?: string }) => {
+    mutationFn: async ({ id, ...payload }: { id: string; title?: string; type?: string; content?: Record<string, unknown>; status?: string; project_id?: string | null }) => {
       const { data, error } = await supabase.from('documents').update(payload).eq('id', id).select().single();
       if (error) throw error;
       return data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['documents'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['documents'] });
+    },
   });
 }
 
