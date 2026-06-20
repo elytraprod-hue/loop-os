@@ -1,11 +1,11 @@
 // src/App.tsx
-import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './modules/auth/AuthProvider';
 import { AppShell } from './components/Layout/AppShell';
 import { ProtectedRoute } from './components/system/ProtectedRoute';
-import { LoginPage } from './modules/auth/LoginPage';
+import { LandingPage } from './pages/LandingPage';
 import { SignUpPage } from './modules/auth/SignUpPage';
 import { ForgotPasswordPage } from './modules/auth/ForgotPasswordPage';
 import { CRMPage } from './modules/crm/CRMPage';
@@ -28,33 +28,43 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <AppShell>
+      <BrowserRouter>
+        <AuthProvider>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/review/:publicToken" element={<PublicReviewPage />} />
-
-            <Route path="/" element={<ProtectedRoute><CRMPage /></ProtectedRoute>} />
-            <Route path="/crm" element={<ProtectedRoute><CRMPage /></ProtectedRoute>} />
-            <Route path="/crm/:clientId" element={<ProtectedRoute><ClientDetailPage /></ProtectedRoute>} />
-            <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
-            <Route path="/projects/:projectId" element={<ProtectedRoute><ProjectDetailPage /></ProtectedRoute>} />
-            <Route path="/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
-            <Route path="/video-review" element={<ProtectedRoute><VideoReviewPage /></ProtectedRoute>} />
-            <Route path="/video-review/:deliverableId" element={<ProtectedRoute><VideoPlayerPage /></ProtectedRoute>} />
-            <Route path="/finance" element={<ProtectedRoute><FinancePage /></ProtectedRoute>} />
-            <Route path="/ai-tools" element={<ProtectedRoute><AIToolsPage /></ProtectedRoute>} />
-            <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+            <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
+            <Route
+              path="/app/*"
+              element={
+                <ProtectedRoute>
+                  <AppShell>
+                    <Routes>
+                      <Route path="dashboard" element={<CRMPage />} />
+                      <Route path="crm" element={<CRMPage />} />
+                      <Route path="crm/:clientId" element={<ClientDetailPage />} />
+                      <Route path="projects" element={<ProjectsPage />} />
+                      <Route path="projects/:projectId" element={<ProjectDetailPage />} />
+                      <Route path="documents" element={<DocumentsPage />} />
+                      <Route path="video-review" element={<VideoReviewPage />} />
+                      <Route path="video-review/:deliverableId" element={<VideoPlayerPage />} />
+                      <Route path="finance" element={<FinancePage />} />
+                      <Route path="ai-tools" element={<AIToolsPage />} />
+                      <Route path="analytics" element={<AnalyticsPage />} />
+                      <Route path="admin" element={<AdminPage />} />
+                    </Routes>
+                    <NotificationCenter />
+                    <CommandPalette />
+                  </AppShell>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
-
-          <NotificationCenter />
-          <CommandPalette />
           <Toaster position="top-right" richColors />
-        </AppShell>
-      </AuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }

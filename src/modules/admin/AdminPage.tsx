@@ -1,63 +1,47 @@
 // src/modules/admin/AdminPage.tsx
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Users as UsersIcon, Settings } from 'lucide-react';
+
+const members = [
+  { name: 'Admin', email: 'admin@loop.com', role: 'owner' },
+  { name: 'Produtor', email: 'produtor@loop.com', role: 'admin' },
+  { name: 'Editor', email: 'editor@loop.com', role: 'member' },
+];
 
 export const AdminPage = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Administração</h1>
-        <p className="text-text-muted">
-          Gerencie usuários e configurações do sistema
-        </p>
+    <div className="animate-fadeUp">
+      <div className="page-hero">
+        <h1>Admin</h1>
+        <p>Configurações e gestão do workspace</p>
       </div>
-      
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total de Usuários</CardTitle>
-            <CardDescription>Usuários no sistema</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">0</div>
-            <p className="text-sm text-text-muted">Nenhum usuário cadastrado</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Workspaces</CardTitle>
-            <CardDescription>Workspaces ativos</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">0</div>
-            <p className="text-sm text-text-muted">Nenhum workspace ativo</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Permissões</CardTitle>
-            <CardDescription>Permissões configuradas</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">0</div>
-            <p className="text-sm text-text-muted">Nenhuma permissão configurada</p>
-          </CardContent>
-        </Card>
+
+      <div className="glass" style={{ borderRadius: 16, padding: 24, marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+          <UsersIcon size={18} color="var(--accent)" />
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 16 }}>Membros</h2>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {members.map((m) => (
+            <div key={m.email} className="glass-soft" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderRadius: 12 }}>
+              <div>
+                <div style={{ fontWeight: 500, fontSize: 14 }}>{m.name}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>{m.email}</div>
+              </div>
+              <span className={`badge ${m.role === 'owner' ? 'badge-success' : m.role === 'admin' ? 'badge-info' : 'badge-neutral'}`}>
+                {m.role}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Usuários Recentes</CardTitle>
-          <CardDescription>Últimos usuários adicionados</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-text-muted">
-            <p>Nenhum usuário cadastrado ainda</p>
-            <p className="text-sm mt-1">Comece adicionando seu primeiro usuário</p>
-          </div>
-        </CardContent>
-      </Card>
+
+      <div className="glass" style={{ borderRadius: 16, padding: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+          <Settings size={18} color="var(--accent)" />
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 16 }}>Configurações</h2>
+        </div>
+        <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Configurações do workspace em breve.</p>
+      </div>
     </div>
   );
 };

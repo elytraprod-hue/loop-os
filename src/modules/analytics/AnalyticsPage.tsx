@@ -1,63 +1,38 @@
 // src/modules/analytics/AnalyticsPage.tsx
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
+import { BarChart3, TrendingUp, Users, DollarSign, Film } from 'lucide-react';
+
+const stats = [
+  { icon: Users, label: 'Clientes Ativos', value: '12', change: '+2' },
+  { icon: Film, label: 'Projetos no Mês', value: '8', change: '+3' },
+  { icon: DollarSign, label: 'Receita Mensal', value: 'R$ 47.500', change: '+12%' },
+  { icon: TrendingUp, label: 'Taxa de Conversão', value: '68%', change: '+5%' },
+];
 
 export const AnalyticsPage = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Análises</h1>
-        <p className="text-text-muted">
-          Acompanhe métricas operacionais
-        </p>
+    <div className="animate-fadeUp">
+      <div className="page-hero">
+        <h1>Análises</h1>
+        <p>Métricas e indicadores de produção</p>
       </div>
-      
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Visualizações</CardTitle>
-            <CardDescription>Métricas operacionais</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">0%</div>
-            <p className="text-sm text-text-muted">Nenhuma métrica disponível</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Relatórios</CardTitle>
-            <CardDescription>Relatórios operacionais</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">0</div>
-            <p className="text-sm text-text-muted">Nenhum relatório gerado</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>KPIs</CardTitle>
-            <CardDescription>Indicadores-chave de performance</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">0</div>
-            <p className="text-sm text-text-muted">Nenhum KPI configurado</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Análises Recentes</CardTitle>
-          <CardDescription>Últimas análises geradas</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-text-muted">
-            <p>Nenhuma análise gerada ainda</p>
-            <p className="text-sm mt-1">Comece gerando análises operacionais</p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
+        {stats.map((s) => (
+          <div key={s.label} className="glass" style={{ padding: 20, borderRadius: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <s.icon size={16} color="var(--accent)" />
+              <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{s.label}</span>
+            </div>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 22 }}>{s.value}</div>
+            <div style={{ color: 'var(--success)', fontSize: 12, marginTop: 4 }}>{s.change} este mês</div>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
+
+      <div className="glass" style={{ padding: 32, borderRadius: 20, textAlign: 'center' }}>
+        <BarChart3 size={40} color="var(--text-muted)" style={{ marginBottom: 16 }} />
+        <p style={{ color: 'var(--text-secondary)' }}>Gráficos detalhados em breve.</p>
+      </div>
     </div>
   );
 };
