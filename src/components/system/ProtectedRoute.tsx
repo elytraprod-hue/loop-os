@@ -60,8 +60,14 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         </div>
         <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 24, color: '#ef4444' }}>Erro de Conexão com o Banco</h2>
         <p style={{ color: 'rgba(255,255,255,.5)', maxWidth: 440, fontSize: 14, lineHeight: 1.6 }}>
-          Ocorreu um erro ao carregar as informações do seu workspace. Isso geralmente acontece devido a políticas de segurança (RLS) pendentes de atualização no banco de dados. <br/>
-          <strong style={{ color: '#fff', marginTop: 8, display: 'block', fontSize: 13 }}>Erro: {wsError instanceof Error ? wsError.message : 'Recursão/Conexão infinita detected'}</strong>
+          Ocorreu um erro ao carregar as informações do seu workspace. Isso geralmente acontece devido a políticas de segurança (RLS) ou credenciais pendentes. <br/>
+          <strong style={{ color: '#fff', marginTop: 8, display: 'block', fontSize: 13 }}>
+            Erro: {wsError instanceof Error 
+              ? wsError.message 
+              : (wsError && typeof wsError === 'object' && 'message' in wsError)
+                ? String((wsError as any).message)
+                : JSON.stringify(wsError)}
+          </strong>
         </p>
         <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
           <button onClick={() => window.location.reload()} className="btn btn--primary" style={{ padding: '10px 20px', fontSize: 12 }}>
