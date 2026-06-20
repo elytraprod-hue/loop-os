@@ -205,6 +205,29 @@ export function useCreateDocumentMutation() {
   });
 }
 
+export function useUpdateDocumentMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...payload }: { id: string; title?: string; type?: string; content?: Record<string, unknown>; status?: string }) => {
+      const { data, error } = await supabase.from('documents').update(payload).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['documents'] }),
+  });
+}
+
+export function useDeleteDocumentMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('documents').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['documents'] }),
+  });
+}
+
 // ─── Deliverables ──────────────────────────────────────────
 
 export function useDeliverableQuery(deliverableId?: string) {
@@ -293,6 +316,29 @@ export function useCreateDeliverableMutation() {
   });
 }
 
+export function useUpdateDeliverableMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...payload }: { id: string; title?: string; status?: string; video_url?: string }) => {
+      const { data, error } = await supabase.from('deliverables').update(payload).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['deliverables'] }),
+  });
+}
+
+export function useDeleteDeliverableMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('deliverables').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['deliverables'] }),
+  });
+}
+
 // ─── Transactions ──────────────────────────────────────────
 
 export function useTransactionsQuery(workspaceId?: string) {
@@ -316,6 +362,18 @@ export function useCreateTransactionMutation() {
   return useMutation({
     mutationFn: async (payload: { workspace_id: string; type: string; amount: number; description: string; date?: string }) => {
       const { data, error } = await supabase.from('transactions').insert(payload).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['transactions'] }),
+  });
+}
+
+export function useUpdateTransactionMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...payload }: { id: string; type?: string; amount?: number; description?: string; status?: string }) => {
+      const { data, error } = await supabase.from('transactions').update(payload).eq('id', id).select().single();
       if (error) throw error;
       return data;
     },

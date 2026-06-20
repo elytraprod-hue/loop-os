@@ -34,7 +34,7 @@ export const ProjectForm = ({ defaultValues, clients, onSubmit, onCancel, isLoad
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <Input
         {...register('title')}
         label="Título"
@@ -43,10 +43,11 @@ export const ProjectForm = ({ defaultValues, clients, onSubmit, onCancel, isLoad
       />
 
       <div>
-        <label className="block text-sm font-medium text-text-primary mb-1">Tipo</label>
+        <label htmlFor="type" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 4 }}>Tipo</label>
         <select
+          id="type"
           {...register('type')}
-          className="block w-full rounded-md border border-border bg-surface px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          style={{ display: 'block', width: '100%', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surface)', padding: '8px 12px', fontSize: 14, color: 'var(--text-primary)', outline: 'none' }}
         >
           <option value="film">Filme</option>
           <option value="commercial">Comercial</option>
@@ -58,10 +59,11 @@ export const ProjectForm = ({ defaultValues, clients, onSubmit, onCancel, isLoad
 
       {clients && clients.length > 0 && (
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-1">Cliente</label>
+          <label htmlFor="client_id" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 4 }}>Cliente</label>
           <select
+            id="client_id"
             {...register('client_id')}
-            className="block w-full rounded-md border border-border bg-surface px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            style={{ display: 'block', width: '100%', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surface)', padding: '8px 12px', fontSize: 14, color: 'var(--text-primary)', outline: 'none' }}
           >
             <option value="">Sem cliente</option>
             {clients.map((c) => (
@@ -71,7 +73,7 @@ export const ProjectForm = ({ defaultValues, clients, onSubmit, onCancel, isLoad
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <Input
           {...register('start_date')}
           label="Data de início"
@@ -84,7 +86,7 @@ export const ProjectForm = ({ defaultValues, clients, onSubmit, onCancel, isLoad
         />
       </div>
 
-      <div className="flex justify-end gap-2 pt-2">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, paddingTop: 8 }}>
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar
         </Button>

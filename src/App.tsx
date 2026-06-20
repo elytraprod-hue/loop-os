@@ -42,6 +42,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/signin" element={<LandingPage />} />
             <Route path="/register" element={<Suspense fallback={<SuspenseFallback />}><RegisterPage /></Suspense>} />
             <Route path="/forgot-password" element={<Suspense fallback={<SuspenseFallback />}><ForgotPasswordPage /></Suspense>} />
             <Route path="/review/:publicToken" element={<Suspense fallback={<SuspenseFallback />}><PublicReviewPage /></Suspense>} />

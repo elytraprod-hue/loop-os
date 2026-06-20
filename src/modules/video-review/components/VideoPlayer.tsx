@@ -1,4 +1,3 @@
-// src/modules/video-review/components/VideoPlayer.tsx
 import { useRef, useEffect, useState, useCallback } from 'react';
 
 interface VideoPlayerProps {
@@ -53,11 +52,11 @@ export const VideoPlayer = ({ src, hlsSrc: _hlsSrc, onTimeUpdate, onSeek, initia
   };
 
   return (
-    <div className="relative rounded-lg overflow-hidden bg-black">
+    <div style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', background: '#000' }}>
       <video
         ref={videoRef}
         src={src}
-        className="w-full aspect-video"
+        style={{ width: '100%', aspectRatio: '16/9' }}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={() => {
           if (videoRef.current) setDuration(videoRef.current.duration);
@@ -67,15 +66,15 @@ export const VideoPlayer = ({ src, hlsSrc: _hlsSrc, onTimeUpdate, onSeek, initia
         controls
       />
 
-      <div className="flex items-center gap-3 px-4 py-2 bg-black/80">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 16px', background: 'rgba(0,0,0,0.8)' }}>
         <button
           onClick={togglePlay}
-          className="text-white text-sm hover:text-accent transition-colors"
+          style={{ color: '#fff', fontSize: 14, border: 'none', background: 'none', cursor: 'pointer' }}
         >
           {isPlaying ? '⏸' : '▶'}
         </button>
 
-        <span className="text-white text-xs font-mono">{formatTime(currentTime)}</span>
+        <span style={{ color: '#fff', fontSize: 12, fontFamily: 'monospace' }}>{formatTime(currentTime)}</span>
 
         <input
           type="range"
@@ -84,10 +83,10 @@ export const VideoPlayer = ({ src, hlsSrc: _hlsSrc, onTimeUpdate, onSeek, initia
           step={0.1}
           value={currentTime}
           onChange={handleSeek}
-          className="flex-1 h-1 accent-accent cursor-pointer"
+          style={{ flex: 1, height: 4, accentColor: 'var(--accent)', cursor: 'pointer' }}
         />
 
-        <span className="text-white text-xs font-mono">{formatTime(duration)}</span>
+        <span style={{ color: '#fff', fontSize: 12, fontFamily: 'monospace' }}>{formatTime(duration)}</span>
       </div>
     </div>
   );

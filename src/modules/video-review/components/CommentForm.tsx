@@ -1,4 +1,3 @@
-// src/modules/video-review/components/CommentForm.tsx
 import { useState } from 'react';
 import { Button } from '../../../components/ui/Button';
 
@@ -25,18 +24,27 @@ export const CommentForm = ({ currentTime, isLoading, onSubmit }: CommentFormPro
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-mono text-accent bg-accent/10 rounded px-1.5 py-0.5">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontSize: 12, fontFamily: 'monospace', color: 'var(--accent)', background: 'rgba(var(--accent-rgb),0.1)', borderRadius: 4, padding: '2px 6px' }}>
           {formatTime(currentTime)}
         </span>
       </div>
-      <div className="flex gap-2">
+      <div style={{ display: 'flex', gap: 8 }}>
         <input
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Adicione um comentário neste momento do vídeo..."
-          className="flex-1 rounded-md border border-border bg-surface px-3 py-2 text-sm placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          style={{
+            flex: 1,
+            borderRadius: 6,
+            border: '1px solid var(--border)',
+            background: 'var(--surface)',
+            padding: '8px 12px',
+            fontSize: 14,
+            color: 'var(--text-primary)',
+            outline: 'none',
+          }}
         />
         <Button type="submit" size="sm" isLoading={isLoading}>
           Enviar

@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Plus, Search, Users } from 'lucide-react';
+import { Plus, Search, Users, Pencil, Trash2 } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorState } from '../../components/ui/ErrorState';
-import { useWorkspaceQuery, useClientsQuery, useCreateClientMutation } from '../../hooks/useDbQuery';
+import { useWorkspaceQuery, useClientsQuery, useCreateClientMutation, useUpdateClientMutation, useDeleteClientMutation } from '../../hooks/useDbQuery';
 import { toast } from 'sonner';
 
 export const CRMPage = () => {
@@ -13,26 +13,64 @@ export const CRMPage = () => {
 
   const { data: clients, isLoading, error, refetch } = useClientsQuery(workspaceId);
   const createClient = useCreateClientMutation();
+  const updateClient = useUpdateClientMutation();
+  const deleteClient = useDeleteClientMutation();
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState<{ id: string; name: string; email?: string; company?: string } | null>(null);
   const [search, setSearch] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
 
+  const isEditing = !!editingClient;
+
   const filtered = (clients ?? []).filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const openCreate = () => {
+    setEditingClient(null);
+    setName('');
+    setEmail('');
+    setCompany('');
+    setModalOpen(true);
+  };
+
+  const openEdit = (c: { id: string; name: string; email?: string; company?: string }) => {
+    setEditingClient(c);
+    setName(c.name);
+    setEmail(c.email ?? '');
+    setCompany(c.company ?? '');
+    setModalOpen(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!workspaceId) return;
-    createClient.mutate(
-      { workspace_id: workspaceId, name, email, company },
-      { onSuccess: () => { toast.success('Cliente criado'); setModalOpen(false); setName(''); setEmail(''); setCompany(''); } }
-    );
+
+    if (isEditing) {
+      updateClient.mutate(
+        { id: editingClient!.id, name, email, company },
+        { onSuccess: () => { toast.success('Cliente atualizado'); setModalOpen(false); }, onError: (err) => toast.error(err.message) }
+      );
+    } else {
+      createClient.mutate(
+        { workspace_id: workspaceId, name, email, company },
+        { onSuccess: () => { toast.success('Cliente criado'); setModalOpen(false); setName(''); setEmail(''); setCompany(''); }, onError: (err) => toast.error(err.message) }
+      );
+    }
   };
 
+  const handleDelete = (id: string, name: string) => {
+    if (!confirm(`Excluir cliente "${name}"?`)) return;
+    deleteClient.mutate(id, {
+      onSuccess: () => toast.success('Cliente excluído'),
+      onError: (err) => toast.error(err.message),
+    });
+  };
+
+  const isPending = createClient.isPending || updateClient.isPending;
   const isLoadingData = wsLoading || isLoading;
 
   return (
@@ -42,7 +80,7 @@ export const CRMPage = () => {
           <h1>CRM</h1>
           <p>Gerencie seus clientes</p>
         </div>
-        <button onClick={() => setModalOpen(true)} className="btn btn-primary">
+        <button onClick={openCreate} className="btn btn-primary">
           <Plus size={16} /> Novo Cliente
         </button>
       </div>
@@ -70,7 +108,7 @@ export const CRMPage = () => {
         <EmptyState
           title="Nenhum cliente"
           description="Crie seu primeiro cliente para começar"
-          action={{ label: 'Novo Cliente', onClick: () => setModalOpen(true) }}
+          action={{ label: 'Novo Cliente', onClick: openCreate }}
           icon={<Users size={24} />}
         />
       ) : (
@@ -82,6 +120,7 @@ export const CRMPage = () => {
                 <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Empresa</th>
                 <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Email</th>
                 <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Status</th>
+                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500, width: 80 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -93,12 +132,22 @@ export const CRMPage = () => {
                     </div>
                     <span style={{ fontWeight: 500 }}>{c.name}</span>
                   </td>
-                  <td style={{ padding: '14px 20px', color: 'var(--text-secondary)', fontSize: 14 }}>{c.company}</td>
-                  <td style={{ padding: '14px 20px', color: 'var(--text-secondary)', fontSize: 14 }}>{c.email}</td>
+                  <td style={{ padding: '14px 20px', color: 'var(--text-secondary)', fontSize: 14 }}>{c.company ?? '-'}</td>
+                  <td style={{ padding: '14px 20px', color: 'var(--text-secondary)', fontSize: 14 }}>{c.email ?? '-'}</td>
                   <td style={{ padding: '14px 20px' }}>
                     <span className={`badge ${c.status === 'active' ? 'badge-success' : c.status === 'prospect' ? 'badge-info' : 'badge-neutral'}`}>
                       {c.status}
                     </span>
+                  </td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button onClick={() => openEdit(c)} className="btn-icon btn-ghost" title="Editar">
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => handleDelete(c.id, c.name)} className="btn-icon btn-ghost" title="Excluir">
+                        <Trash2 size={14} color="var(--danger)" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -107,7 +156,7 @@ export const CRMPage = () => {
         </div>
       )}
 
-      <Modal open={modalOpen} onClose={() => { setModalOpen(false); setName(''); setEmail(''); setCompany(''); }} title="Novo Cliente">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={isEditing ? 'Editar Cliente' : 'Novo Cliente'}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
             <label style={{ display: 'block', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Nome</label>
@@ -121,9 +170,12 @@ export const CRMPage = () => {
             <label style={{ display: 'block', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Empresa</label>
             <input className="input-base" placeholder="Nome da empresa" value={company} onChange={(e) => setCompany(e.target.value)} />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ marginTop: 8 }} disabled={createClient.isPending}>
-            {createClient.isPending ? 'Salvando…' : 'Salvar'}
-          </button>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
+            <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancelar</button>
+            <button type="submit" className="btn btn-primary" disabled={isPending}>
+              {isPending ? 'Salvando…' : isEditing ? 'Atualizar' : 'Salvar'}
+            </button>
+          </div>
         </form>
       </Modal>
     </div>

@@ -3,16 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 
 export const NotificationCenter = () => {
   return (
-    <div className="fixed bottom-4 right-4 w-96 space-y-2 z-50">
+    <div style={{ position: 'fixed', bottom: 16, right: 16, width: 384, display: 'flex', flexDirection: 'column', gap: 8, zIndex: 50 }}>
       <Card>
         <CardHeader>
           <CardTitle>Notificações</CardTitle>
           <CardDescription>Centro de notificações em tempo real</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-4 text-text-muted">
+          <div style={{ textAlign: 'center', padding: '16px 0', color: 'var(--text-muted)' }}>
             <p>Nenhuma notificação nova</p>
-            <p className="text-sm mt-1">As notificações aparecerão aqui</p>
+            <p style={{ fontSize: 13, marginTop: 4 }}>As notificações aparecerão aqui</p>
           </div>
         </CardContent>
       </Card>

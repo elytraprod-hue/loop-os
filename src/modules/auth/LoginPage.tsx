@@ -1,4 +1,3 @@
-// src/modules/auth/LoginPage.tsx
 import { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -47,9 +46,9 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+    <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', padding: '0 16px' }}>
+      <Card>
+        <CardHeader style={{ textAlign: 'center' }}>
           <CardTitle>Entrar</CardTitle>
           <CardDescription>
             Entre com suas credenciais para acessar o sistema
@@ -57,7 +56,7 @@ export const LoginPage = () => {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <Input
               {...register('email')}
               label="Email"
@@ -75,24 +74,24 @@ export const LoginPage = () => {
             />
 
             {error && (
-              <div className="rounded-md bg-error/10 p-3 text-sm text-error">
+              <div style={{ borderRadius: 6, background: 'rgba(239,68,68,0.1)', padding: 12, fontSize: 14, color: 'var(--text-error)' }}>
                 {error}
               </div>
             )}
 
-            <Button type="submit" className="w-full" isLoading={isLoading}>
+            <Button type="submit" isLoading={isLoading}>
               Entrar
             </Button>
           </form>
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-2">
-          <Link to="/forgot-password" className="text-sm text-accent hover:underline">
+        <CardFooter style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Link to="/forgot-password" style={{ fontSize: 14, color: 'var(--accent)', textDecoration: 'underline' }}>
             Esqueceu sua senha?
           </Link>
-          <p className="text-sm text-text-muted">
+          <p style={{ fontSize: 14, color: 'var(--text-muted)' }}>
             Não tem conta?{' '}
-            <Link to="/signup" className="text-accent hover:underline">
+            <Link to="/signup" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>
               Cadastre-se
             </Link>
           </p>

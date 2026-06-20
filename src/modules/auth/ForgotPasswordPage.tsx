@@ -55,7 +55,7 @@ export const ForgotPasswordPage = () => {
             </CardDescription>
           </CardHeader>
           <CardFooter style={{ justifyContent: 'center' }}>
-            <Link to="/login" style={{ fontSize: 14, color: 'var(--accent)', textDecoration: 'none' }}>
+            <Link to="/signin" style={{ fontSize: 14, color: 'var(--accent)', textDecoration: 'none' }}>
               Voltar ao login
             </Link>
           </CardFooter>
@@ -97,7 +97,7 @@ export const ForgotPasswordPage = () => {
         </CardContent>
 
         <CardFooter style={{ justifyContent: 'center' }}>
-          <Link to="/login" style={{ fontSize: 14, color: 'var(--accent)', textDecoration: 'none' }}>
+          <Link to="/signin" style={{ fontSize: 14, color: 'var(--accent)', textDecoration: 'none' }}>
             Voltar ao login
           </Link>
         </CardFooter>

@@ -32,7 +32,7 @@ export const ClientForm = ({ defaultValues, onSubmit, onCancel, isLoading }: Cli
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <Input
         {...register('name')}
         label="Nome"
@@ -58,7 +58,7 @@ export const ClientForm = ({ defaultValues, onSubmit, onCancel, isLoading }: Cli
         placeholder="Nome da empresa"
         error={errors.company?.message}
       />
-      <div className="flex justify-end gap-2 pt-2">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, paddingTop: 8 }}>
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar
         </Button>

@@ -1,14 +1,13 @@
-// src/modules/projects/ProjectsPage.tsx
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, FolderOpen } from 'lucide-react';
+import { Plus, Search, FolderOpen, Pencil, Trash2 } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorState } from '../../components/ui/ErrorState';
-import { useWorkspaceQuery, useProjectsQuery, useClientsQuery, useCreateProjectMutation } from '../../hooks/useDbQuery';
+import { useWorkspaceQuery, useProjectsQuery, useClientsQuery, useCreateProjectMutation, useUpdateProjectMutation, useDeleteProjectMutation } from '../../hooks/useDbQuery';
 import { toast } from 'sonner';
 
 const statusColors: Record<string, string> = {
@@ -36,12 +35,17 @@ export const ProjectsPage = () => {
   const { data: projects, isLoading, error, refetch } = useProjectsQuery(workspaceId);
   const { data: clients } = useClientsQuery(workspaceId);
   const createProject = useCreateProjectMutation();
+  const updateProject = useUpdateProjectMutation();
+  const deleteProject = useDeleteProjectMutation();
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<{ id: string; title: string; client_id?: string; type: string } | null>(null);
   const [filter, setFilter] = useState('');
   const [title, setTitle] = useState('');
   const [clientId, setClientId] = useState('');
   const [type, setType] = useState('');
+
+  const isEditing = !!editingProject;
 
   const filtered = (projects ?? []).filter(p =>
     p.title.toLowerCase().includes(filter.toLowerCase())
@@ -49,25 +53,54 @@ export const ProjectsPage = () => {
 
   const clientOptions = (clients ?? []).map(c => ({ value: c.id, label: c.name }));
 
+  const openCreate = () => {
+    setEditingProject(null);
+    setTitle('');
+    setClientId('');
+    setType('');
+    setModalOpen(true);
+  };
+
+  const openEdit = (p: { id: string; title: string; client_id?: string; type: string }) => {
+    setEditingProject(p);
+    setTitle(p.title);
+    setClientId(p.client_id ?? '');
+    setType(p.type);
+    setModalOpen(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !type) return;
-    createProject.mutate(
-      { workspace_id: workspaceId!, title, client_id: clientId || undefined, type },
-      {
-        onSuccess: () => {
-          toast.success('Projeto criado com sucesso');
-          setModalOpen(false);
-          setTitle('');
-          setClientId('');
-          setType('');
-        },
-        onError: (err) => {
-          toast.error(err instanceof Error ? err.message : 'Erro ao criar projeto');
-        },
-      }
-    );
+
+    if (isEditing) {
+      updateProject.mutate(
+        { id: editingProject!.id, title, client_id: clientId || undefined, type },
+        {
+          onSuccess: () => { toast.success('Projeto atualizado'); setModalOpen(false); },
+          onError: (err) => toast.error(err.message),
+        }
+      );
+    } else {
+      createProject.mutate(
+        { workspace_id: workspaceId!, title, client_id: clientId || undefined, type },
+        {
+          onSuccess: () => { toast.success('Projeto criado'); setModalOpen(false); setTitle(''); setClientId(''); setType(''); },
+          onError: (err) => toast.error(err.message),
+        }
+      );
+    }
   };
+
+  const handleDelete = (id: string, title: string) => {
+    if (!confirm(`Excluir projeto "${title}"?`)) return;
+    deleteProject.mutate(id, {
+      onSuccess: () => toast.success('Projeto excluído'),
+      onError: (err) => toast.error(err.message),
+    });
+  };
+
+  const isPending = createProject.isPending || updateProject.isPending;
 
   if (isLoading) {
     return (
@@ -92,7 +125,7 @@ export const ProjectsPage = () => {
           <h1>Projetos</h1>
           <p>Gerencie seus projetos audiovisuais</p>
         </div>
-        <button onClick={() => setModalOpen(true)} className="btn btn-primary">
+        <button onClick={openCreate} className="btn btn-primary">
           <Plus size={16} /> Novo Projeto
         </button>
       </div>
@@ -109,7 +142,7 @@ export const ProjectsPage = () => {
           title="Nenhum projeto encontrado"
           description="Crie um novo projeto para começar."
           icon={<FolderOpen size={32} />}
-          action={{ label: 'Novo Projeto', onClick: () => setModalOpen(true) }}
+          action={{ label: 'Novo Projeto', onClick: openCreate }}
         />
       ) : (
         <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
@@ -120,6 +153,7 @@ export const ProjectsPage = () => {
                 <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Cliente</th>
                 <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Tipo</th>
                 <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Status</th>
+                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500, width: 80 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -136,6 +170,16 @@ export const ProjectsPage = () => {
                   <td style={{ padding: '14px 20px' }}>
                     <span className={`badge ${statusColors[p.status] || 'badge-neutral'}`}>{p.status.replace('_', ' ')}</span>
                   </td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button onClick={() => openEdit(p)} className="btn-icon btn-ghost" title="Editar">
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => handleDelete(p.id, p.title)} className="btn-icon btn-ghost" title="Excluir">
+                        <Trash2 size={14} color="var(--danger)" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -143,7 +187,7 @@ export const ProjectsPage = () => {
         </div>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo Projeto">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={isEditing ? 'Editar Projeto' : 'Novo Projeto'}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Input
             label="Título"
@@ -165,9 +209,12 @@ export const ProjectsPage = () => {
             options={projectTypeOptions}
             placeholder="Selecionar tipo..."
           />
-          <button type="submit" className="btn btn-primary" style={{ marginTop: 8 }} disabled={createProject.isPending}>
-            {createProject.isPending ? 'Salvando...' : 'Salvar'}
-          </button>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
+            <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancelar</button>
+            <button type="submit" className="btn btn-primary" disabled={isPending}>
+              {isPending ? 'Salvando...' : isEditing ? 'Atualizar' : 'Salvar'}
+            </button>
+          </div>
         </form>
       </Modal>
     </div>

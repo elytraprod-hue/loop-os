@@ -1,4 +1,3 @@
-// src/modules/video-review/components/TimestampComment.tsx
 import { CheckCircle, Circle } from 'lucide-react';
 
 interface TimestampCommentProps {
@@ -29,31 +28,36 @@ export const TimestampComment = ({
   };
 
   return (
-    <div className={`rounded-lg border p-3 transition-colors ${resolved ? 'border-success/20 bg-success/5' : 'border-border bg-surface'}`}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+    <div style={{
+      borderRadius: 8,
+      border: `1px solid ${resolved ? 'rgba(34,197,94,0.2)' : 'var(--border)'}`,
+      padding: 12,
+      background: resolved ? 'rgba(34,197,94,0.05)' : 'var(--surface)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <button
               onClick={() => onSeek?.(timestamp)}
-              className="text-xs font-mono text-accent hover:text-accent-light bg-accent/10 rounded px-1.5 py-0.5"
+              style={{ fontSize: 12, fontFamily: 'monospace', color: 'var(--accent)', background: 'rgba(var(--accent-rgb),0.1)', border: 'none', borderRadius: 4, padding: '2px 6px', cursor: 'pointer' }}
             >
               {formatTime(timestamp)}
             </button>
-            <span className="text-xs font-medium text-text-primary truncate">{author}</span>
+            <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{author}</span>
           </div>
-          <p className={`text-sm ${resolved ? 'text-text-muted line-through' : 'text-text-primary'}`}>
+          <p style={{ fontSize: 14, color: resolved ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: resolved ? 'line-through' : 'none' }}>
             {content}
           </p>
-          <p className="text-xs text-text-muted mt-1">
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
             {new Date(created_at).toLocaleString('pt-BR')}
           </p>
         </div>
         {onToggleResolved && (
           <button
             onClick={() => onToggleResolved(id, !resolved)}
-            className={`mt-0.5 ${resolved ? 'text-success' : 'text-text-muted hover:text-success'} transition-colors`}
+            style={{ marginTop: 2, color: resolved ? 'var(--success)' : 'var(--text-muted)', border: 'none', background: 'none', cursor: 'pointer' }}
           >
-            {resolved ? <CheckCircle className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+            {resolved ? <CheckCircle size={16} /> : <Circle size={16} />}
           </button>
         )}
       </div>
