@@ -6,6 +6,7 @@ import { AuthProvider } from './modules/auth/AuthProvider';
 import { AppShell } from './components/Layout/AppShell';
 import { ProtectedRoute } from './components/system/ProtectedRoute';
 import { LandingPage } from './pages/LandingPage';
+import { RegisterPage } from './pages/RegisterPage';
 import { SignUpPage } from './modules/auth/SignUpPage';
 import { ForgotPasswordPage } from './modules/auth/ForgotPasswordPage';
 import { CRMPage } from './modules/crm/CRMPage';
@@ -32,6 +33,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/review/:publicToken" element={<PublicReviewPage />} />
