@@ -13,7 +13,8 @@ export function useWorkspaceQuery() {
       const { data, error } = await supabase
         .from('workspace_members')
         .select('workspace_id, workspaces(*)')
-        .maybeSingle();
+        .limit(1)
+        .single();
       if (error) throw error;
       if (!data) return null;
       const w = data.workspaces as unknown as Workspace;
