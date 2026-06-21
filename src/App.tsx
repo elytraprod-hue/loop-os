@@ -7,6 +7,7 @@ import { AppShell } from './components/Layout/AppShell';
 import { ProtectedRoute } from './components/system/ProtectedRoute';
 import { LandingPage } from './pages/LandingPage';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
+import { AuthCallback } from './modules/auth/AuthCallback';
 
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const ForgotPasswordPage = lazy(() => import('./modules/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
@@ -45,6 +46,7 @@ function App() {
             <Route path="/signin" element={<LandingPage />} />
             <Route path="/register" element={<Suspense fallback={<SuspenseFallback />}><RegisterPage /></Suspense>} />
             <Route path="/forgot-password" element={<Suspense fallback={<SuspenseFallback />}><ForgotPasswordPage /></Suspense>} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/review/:publicToken" element={<Suspense fallback={<SuspenseFallback />}><PublicReviewPage /></Suspense>} />
             <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
             <Route
