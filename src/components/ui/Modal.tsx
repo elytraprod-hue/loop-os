@@ -16,12 +16,12 @@ export const Modal = ({ open, onClose, title, description, children, className, 
   return (
     <Dialog.Root open={open} onOpenChange={(open) => { if (!open) onClose(); }}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center animate-fadeIn" />
+        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-2xl z-50 flex items-center justify-center animate-fadeIn" />
         <Dialog.Content
-          className={`fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg ${wide ? 'max-w-2xl' : 'max-w-lg'} max-h-[calc(100vh-48px)] overflow-y-auto bg-[#111]/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 outline-none animate-scaleIn ${className || ''}`}
+          className={`fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg ${wide ? 'max-w-2xl' : 'max-w-lg'} max-h-[calc(100vh-48px)] overflow-y-auto glass-strong border border-white/10 rounded-3xl p-8 outline-none animate-bounceIn shadow-2xl ${className || ''}`}
         >
           <div className="flex items-center justify-between pb-6 border-b border-white/10">
-            <Dialog.Title className="font-display font-black text-xl text-[#e8e8e8] m-0">
+            <Dialog.Title className="font-display font-black text-2xl text-white m-0">
               {title}
             </Dialog.Title>
             {description && (
@@ -31,14 +31,14 @@ export const Modal = ({ open, onClose, title, description, children, className, 
             )}
             <Dialog.Close asChild>
               <button
-                className="bg-transparent border-0 cursor-pointer text-gray-400 p-1 flex hover:text-gray-200 transition-colors"
+                className="bg-transparent border-0 cursor-pointer text-gray-400 p-2 flex hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
                 aria-label="Fechar"
               >
-                <X size={18} />
+                <X size={20} className="group-hover:rotate-90 transition-transform duration-200" />
               </button>
             </Dialog.Close>
           </div>
-          <div className="pt-6">
+          <div className="pt-6 animate-slideUp">
             {children}
           </div>
         </Dialog.Content>
