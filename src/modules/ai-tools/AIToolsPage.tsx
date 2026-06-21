@@ -351,8 +351,8 @@ export const AIToolsPage = () => {
   return (
     <div className="animate-fadeUp">
       <div className="mb-7">
-        <h1 className="font-display font-black text-4xl text-[#e8e8e8]">Frame AI</h1>
-        <p className="text-[#aaaaaa] text-sm mt-1">Acelere a pré-produção, comercial e pós-produção do seu estúdio audiovisual</p>
+        <h1 className="font-display font-black text-5xl text-white tracking-tight">Frame AI</h1>
+        <p className="text-[#c4c4c4] text-base mt-2 leading-relaxed">Acelere a pré-produção, comercial e pós-produção do seu estúdio audiovisual</p>
       </div>
 
       <div className="grid grid-cols-[240px_1fr] gap-6 items-start">

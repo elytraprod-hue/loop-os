@@ -73,8 +73,8 @@ export const AnalyticsPage = () => {
   return (
     <div className="animate-fadeUp">
       <div className="mb-8">
-        <h1 className="font-display font-black text-4xl text-[#e8e8e8]">Análises</h1>
-        <p className="text-[#aaaaaa] text-sm mt-1">Métricas e indicadores de produção</p>
+        <h1 className="font-display font-black text-5xl text-white tracking-tight">Análises</h1>
+        <p className="text-[#c4c4c4] text-base mt-2 leading-relaxed">Métricas e indicadores de produção</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

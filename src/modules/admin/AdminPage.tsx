@@ -60,8 +60,8 @@ export const AdminPage = () => {
   return (
     <div className="animate-fadeUp">
       <div className="mb-8">
-        <h1 className="font-display font-black text-4xl text-[#e8e8e8]">Admin</h1>
-        <p className="text-[#aaaaaa] text-sm mt-1">Configurações e gestão do workspace</p>
+        <h1 className="font-display font-black text-5xl text-white tracking-tight">Admin</h1>
+        <p className="text-[#c4c4c4] text-base mt-2 leading-relaxed">Configurações e gestão do workspace</p>
       </div>
 
       <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-6">

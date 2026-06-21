@@ -140,8 +140,8 @@ export const CRMPage = () => {
     <div className="animate-fadeUp">
       <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
         <div>
-          <h1 className="font-display font-black text-4xl text-[#e8e8e8]">CRM</h1>
-          <p className="text-[#aaaaaa] text-sm mt-1">Gerencie seus leads, contatos e clientes</p>
+          <h1 className="font-display font-black text-5xl text-white tracking-tight">CRM</h1>
+          <p className="text-[#c4c4c4] text-base mt-2 leading-relaxed">Gerencie seus leads, contatos e clientes</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl flex p-1">

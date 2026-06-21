@@ -187,8 +187,8 @@ export const DocumentsPage = () => {
     <div className="animate-fadeUp">
       <div className="flex items-start justify-between flex-wrap gap-4 mb-8">
         <div>
-          <h1 className="font-display font-black text-4xl text-[#e8e8e8]">Documentos</h1>
-          <p className="text-[#aaaaaa] text-sm mt-1">Gerencie briefings, roteiros e contratos da sua produtora</p>
+          <h1 className="font-display font-black text-5xl text-white tracking-tight">Documentos</h1>
+          <p className="text-[#c4c4c4] text-base mt-2 leading-relaxed">Gerencie briefings, roteiros e contratos da sua produtora</p>
         </div>
         <button onClick={openCreate} className="bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl px-6 py-3 transition-all flex items-center gap-2">
           <Plus size={16} /> Novo Documento

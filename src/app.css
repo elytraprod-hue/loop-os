@@ -13,9 +13,9 @@
   --color-bg-surface-hover: rgba(255, 255, 255, 0.065);
   --color-bg-surface-active: rgba(255, 255, 255, 0.085);
   
-  --color-text-primary: #e8e8e8;
-  --color-text-secondary: #aaaaaa;
-  --color-text-muted: #666666;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #c4c4c4;
+  --color-text-muted: #888888;
   --color-text-inverse: #0d0d0d;
   
   --color-glass-border: rgba(255, 255, 255, 0.105);
@@ -77,4 +77,65 @@
   to {
     opacity: 0;
   }
+}
+
+/* Improved text hierarchy utilities */
+.text-h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.5rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.text-h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.text-h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+}
+
+.text-body-lg {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.text-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.text-body-sm {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.text-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
 }

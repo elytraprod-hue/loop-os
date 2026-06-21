@@ -71,8 +71,8 @@ export const LoginPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-[#0d0d0d] p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle>Entrar</CardTitle>
-          <CardDescription>
+          <CardTitle className="font-display font-black text-3xl text-white tracking-tight">Entrar</CardTitle>
+          <CardDescription className="text-[#c4c4c4] text-base">
             Entre com suas credenciais para acessar o sistema
           </CardDescription>
         </CardHeader>

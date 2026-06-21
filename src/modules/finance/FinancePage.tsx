@@ -95,8 +95,8 @@ export const FinancePage = () => {
     <div className="animate-fadeUp">
       <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
         <div>
-          <h1 className="font-display font-black text-4xl text-[#e8e8e8]">Financeiro</h1>
-          <p className="text-[#aaaaaa] text-sm mt-1">Gerencie receitas e despesas</p>
+          <h1 className="font-display font-black text-5xl text-white tracking-tight">Financeiro</h1>
+          <p className="text-[#c4c4c4] text-base mt-2 leading-relaxed">Gerencie receitas e despesas</p>
         </div>
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">

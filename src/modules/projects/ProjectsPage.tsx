@@ -176,8 +176,8 @@ export const ProjectsPage = () => {
     <div className="animate-fadeUp">
       <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
         <div>
-          <h1 className="font-display font-black text-4xl text-[#e8e8e8]">Projetos</h1>
-          <p className="text-[#aaaaaa] text-sm mt-1">Acompanhe e gerencie a linha de produção audiovisual</p>
+          <h1 className="font-display font-black text-5xl text-white tracking-tight">Projetos</h1>
+          <p className="text-[#c4c4c4] text-base mt-2 leading-relaxed">Acompanhe e gerencie a linha de produção audiovisual</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl flex p-1">
