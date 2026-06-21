@@ -17,58 +17,25 @@ export const FloatingDock = ({ collapsed }: FloatingDockProps) => {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        left: collapsed ? 122 : 264,
-        bottom: 24,
-        zIndex: 50,
-        transition: 'left .25s ease',
-      }}
+      className={`fixed bottom-6 left-[calc(238px+26px)] flex gap-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-3 z-50 transition-all duration-250 ${collapsed ? 'left-[calc(96px+26px)]' : 'left-[calc(238px+26px)]'}`}
     >
-      <div
-        className="glass"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-          padding: '6px 8px',
-          borderRadius: 16,
-          boxShadow: '0 8px 32px rgba(0,0,0,.4)',
-        }}
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl w-8 h-8 flex items-center justify-center transition-all"
       >
-        <button
-          onClick={() => setOpen(v => !v)}
-          className="btn-icon"
-          style={{
-            background: 'var(--accent)',
-            color: '#fff',
-            borderRadius: 10,
-            width: 32,
-            height: 32,
-          }}
-        >
-          <Plus size={16} />
-        </button>
+        <Plus size={16} />
+      </button>
 
-        {open && actions.map((action) => (
-          <button
-            key={action.label}
-            onClick={action.onClick}
-            className="btn-icon btn-ghost"
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 10,
-              color: 'var(--text-secondary)',
-              animation: 'fadeIn .2s ease-out',
-              position: 'relative',
-            }}
-            title={action.label}
-          >
-            <action.icon size={16} />
-          </button>
-        ))}
-      </div>
+      {open && actions.map((action) => (
+        <button
+          key={action.label}
+          onClick={action.onClick}
+          className="w-8 h-8 rounded-xl text-gray-400 hover:text-gray-200 hover:bg-white/8 transition-all animate-fadeIn relative"
+          title={action.label}
+        >
+          <action.icon size={16} />
+        </button>
+      ))}
     </div>
   );
 };

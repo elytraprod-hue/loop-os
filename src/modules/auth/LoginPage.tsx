@@ -3,10 +3,12 @@ import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Github } from 'lucide-react';
 import { useAuth } from './authService';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/Card';
+import { supabase } from '../../lib/supabase';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -17,6 +19,7 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 
 export const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { signIn, user } = useAuth();
@@ -45,10 +48,29 @@ export const LoginPage = () => {
     }
   };
 
+  const handleGithubLogin = async () => {
+    setIsGithubLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao fazer login com GitHub');
+      setIsGithubLoading(false);
+    }
+  };
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', padding: '0 16px' }}>
-      <Card>
-        <CardHeader style={{ textAlign: 'center' }}>
+    <div className="flex min-h-screen items-center justify-center bg-[#0d0d0d] p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
           <CardTitle>Entrar</CardTitle>
           <CardDescription>
             Entre com suas credenciais para acessar o sistema
@@ -56,7 +78,7 @@ export const LoginPage = () => {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <Input
               {...register('email')}
               label="Email"
@@ -74,24 +96,41 @@ export const LoginPage = () => {
             />
 
             {error && (
-              <div style={{ borderRadius: 6, background: 'rgba(239,68,68,0.1)', padding: 12, fontSize: 14, color: 'var(--text-error)' }}>
+              <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400">
                 {error}
               </div>
             )}
 
-            <Button type="submit" isLoading={isLoading}>
+            <Button type="submit" isLoading={isLoading} className="w-full">
               Entrar
+            </Button>
+
+            <div className="flex items-center gap-3 my-2">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-xs text-gray-500">ou</span>
+              <div className="flex-1 h-px bg-white/10" />
+            </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleGithubLogin}
+              isLoading={isGithubLoading}
+              className="w-full"
+            >
+              <Github size={18} />
+              Entrar com GitHub
             </Button>
           </form>
         </CardContent>
 
-        <CardFooter style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Link to="/forgot-password" style={{ fontSize: 14, color: 'var(--accent)', textDecoration: 'underline' }}>
+        <CardFooter className="flex flex-col gap-2">
+          <Link to="/forgot-password" className="text-sm text-orange-500 hover:underline">
             Esqueceu sua senha?
           </Link>
-          <p style={{ fontSize: 14, color: 'var(--text-muted)' }}>
+          <p className="text-sm text-gray-500">
             Não tem conta?{' '}
-            <Link to="/signup" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>
+            <Link to="/signup" className="text-orange-500 hover:underline">
               Cadastre-se
             </Link>
           </p>

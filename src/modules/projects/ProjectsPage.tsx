@@ -174,56 +174,41 @@ export const ProjectsPage = () => {
 
   return (
     <div className="animate-fadeUp">
-      <div className="page-hero" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 32 }}>
+      <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
         <div>
-          <h1>Projetos</h1>
-          <p>Acompanhe e gerencie a linha de produção audiovisual</p>
+          <h1 className="font-display font-black text-4xl text-[#e8e8e8]">Projetos</h1>
+          <p className="text-[#aaaaaa] text-sm mt-1">Acompanhe e gerencie a linha de produção audiovisual</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div className="glass" style={{ display: 'flex', padding: 4, borderRadius: 10 }}>
+        <div className="flex items-center gap-4">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl flex p-1">
             <button
               onClick={() => setViewMode('pipeline')}
-              style={{
-                padding: '6px 12px',
-                borderRadius: 8,
-                background: viewMode === 'pipeline' ? 'var(--accent)' : 'transparent',
-                color: viewMode === 'pipeline' ? '#000' : 'var(--text-secondary)',
-                fontWeight: 600,
-                fontSize: 12,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6
-              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${viewMode === 'pipeline' ? 'bg-orange-500 text-black' : 'text-gray-400 hover:text-gray-200'}`}
             >
               <LayoutGrid size={14} /> Funil
             </button>
             <button
               onClick={() => setViewMode('list')}
-              style={{
-                padding: '6px 12px',
-                borderRadius: 8,
-                background: viewMode === 'list' ? 'var(--accent)' : 'transparent',
-                color: viewMode === 'list' ? '#000' : 'var(--text-secondary)',
-                fontWeight: 600,
-                fontSize: 12,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6
-              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${viewMode === 'list' ? 'bg-orange-500 text-black' : 'text-gray-400 hover:text-gray-200'}`}
             >
               <List size={14} /> Lista
             </button>
           </div>
-          <button onClick={openCreate} className="btn btn--primary">
+          <button onClick={openCreate} className="bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl px-6 py-3 transition-all flex items-center gap-2">
             <Plus size={16} /> Novo Projeto
           </button>
         </div>
       </div>
 
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ position: 'relative', maxWidth: 400 }}>
-          <Search size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-          <input className="input-base" style={{ paddingLeft: 40 }} placeholder="Buscar projetos..." value={filter} onChange={(e) => setFilter(e.target.value)} />
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+          <input
+            className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 pl-10 text-[#e8e8e8] placeholder:text-[#666] focus:border-orange-500/50 focus:outline-none w-full"
+            placeholder="Buscar projetos..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          />
         </div>
       </div>
 
@@ -242,40 +227,42 @@ export const ProjectsPage = () => {
           onItemClick={handleItemClick}
         />
       ) : (
-        <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden">
+          <table className="w-full border-collapse">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--glass-border)', fontSize: 13, color: 'var(--text-muted)' }}>
-                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Título</th>
-                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Cliente</th>
-                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Tipo</th>
-                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500 }}>Status</th>
-                <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 500, width: 80 }}></th>
+              <tr className="border-b border-white/10 text-xs text-gray-500">
+                <th className="p-4 text-left font-medium">Título</th>
+                <th className="p-4 text-left font-medium">Cliente</th>
+                <th className="p-4 text-left font-medium">Tipo</th>
+                <th className="p-4 text-left font-medium">Status</th>
+                <th className="p-4 text-left font-medium w-20"></th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((p) => (
-                <tr key={p.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
-                  <td style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <FolderOpen size={14} color="var(--accent)" />
+                <tr key={p.id} className="border-b border-white/10">
+                  <td className="p-4 flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                      <FolderOpen size={14} className="text-orange-500" />
                     </div>
-                    <Link to={`/app/projects/${p.id}`} style={{ fontWeight: 600, color: 'inherit', textDecoration: 'none' }}>{p.title}</Link>
+                    <Link to={`/app/projects/${p.id}`} className="font-semibold text-inherit hover:text-orange-400 transition-colors no-underline">{p.title}</Link>
                   </td>
-                  <td style={{ padding: '14px 20px', color: 'var(--text-secondary)', fontSize: 14 }}>{p.clients?.name ?? '—'}</td>
-                  <td style={{ padding: '14px 20px', fontSize: 14 }}>
+                  <td className="p-4 text-gray-400 text-sm">{p.clients?.name ?? '—'}</td>
+                  <td className="p-4 text-sm">
                     {projectTypeOptions.find(o => o.value === p.type)?.label || p.type}
                   </td>
-                  <td style={{ padding: '14px 20px' }}>
-                    <span className={`badge ${statusColors[p.status] || 'badge-neutral'}`}>{statusLabels[p.status] || p.status}</span>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded-md text-xs font-medium ${statusColors[p.status] === 'badge-success' ? 'bg-green-500/10 text-green-400' : statusColors[p.status] === 'badge-info' ? 'bg-blue-500/10 text-blue-400' : statusColors[p.status] === 'badge-warning' ? 'bg-yellow-500/10 text-yellow-400' : 'bg-gray-500/10 text-gray-400'}`}>
+                      {statusLabels[p.status] || p.status}
+                    </span>
                   </td>
-                  <td style={{ padding: '14px 20px' }}>
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => openEdit(p)} className="btn-icon btn-ghost" title="Editar">
+                  <td className="p-4">
+                    <div className="flex gap-1">
+                      <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-white/5 transition-all" title="Editar">
                         <Pencil size={14} />
                       </button>
-                      <button onClick={() => handleDelete(p.id, p.title)} className="btn-icon btn-ghost" title="Excluir">
-                        <Trash2 size={14} color="var(--danger)" />
+                      <button onClick={() => handleDelete(p.id, p.title)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-white/5 transition-all" title="Excluir">
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </td>
@@ -287,7 +274,7 @@ export const ProjectsPage = () => {
       )}
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={isEditing ? 'Editar Projeto' : 'Novo Projeto'}>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Input
             label="Título *"
             placeholder="Título do projeto"
@@ -318,9 +305,9 @@ export const ProjectsPage = () => {
               placeholder="Selecionar status..."
             />
           )}
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
-            <button type="button" className="btn btn--secondary" onClick={() => setModalOpen(false)}>Cancelar</button>
-            <button type="submit" className="btn btn--primary" disabled={isPending}>
+          <div className="flex gap-2 justify-end mt-2">
+            <button type="button" className="bg-white/5 hover:bg-white/10 border border-white/10 text-[#e8e8e8] rounded-xl px-6 py-3 transition-all" onClick={() => setModalOpen(false)}>Cancelar</button>
+            <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl px-6 py-3 transition-all" disabled={isPending}>
               {isPending ? 'Salvando...' : isEditing ? 'Atualizar' : 'Salvar'}
             </button>
           </div>

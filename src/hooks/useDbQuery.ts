@@ -47,6 +47,25 @@ export function useCreateWorkspaceMutation() {
   });
 }
 
+export function useUpdateWorkspaceMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...payload }: { id: string; name?: string; slug?: string; config?: Record<string, unknown> }) => {
+      const { data, error } = await supabase
+        .from('workspaces')
+        .update(payload)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['workspace'] });
+    },
+  });
+}
+
 export function useWorkspaceMembersQuery(workspaceId?: string) {
   return useQuery({
     queryKey: ['workspace_members', workspaceId],

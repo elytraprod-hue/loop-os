@@ -1,3 +1,5 @@
+import Anthropic from '@anthropic-ai/sdk';
+
 const SYSTEM_PROMPTS: Record<string, string> = {
   'roteiro': 'Você é um roteirista profissional de cinema e vídeo. Estruture e escreva roteiros audiovisuais detalhados, respeitando formatos profissionais de roteiro (ex: cabeçalhos de cena, ação, nomes de personagens centralizados, diálogos). Responda em português.',
   'decupagem': 'Você é um diretor de fotografia experiente. Crie decupagens técnicas completas e profissionais estruturadas em tabelas com campos como Número do Plano, Enquadramento, Movimento de Câmera, Ângulo, Descrição da Cena e Notas de Áudio/Efeitos. Responda em português.',
@@ -18,9 +20,9 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const apiKey = process.env['NVIDIA_API_KEY'];
+  const apiKey = process.env['ANTHROPIC_API_KEY'];
   if (!apiKey) {
-    return res.status(500).json({ error: 'NVIDIA_API_KEY not configured' });
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
   }
 
   const { tool_id, input } = req.body as { tool_id?: string; input?: string };
@@ -32,36 +34,18 @@ export default async function handler(req: any, res: any) {
   const systemPrompt = SYSTEM_PROMPTS[tool_id] || 'Você é um assistente especializado em produção audiovisual. Responda em português.';
 
   try {
-    const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'nvidia/nemotron-3-ultra-550b-a55b',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: input },
-        ],
-        temperature: 1,
-        top_p: 0.95,
-        max_tokens: 16384,
-        extra_body: {
-          chat_template_kwargs: { enable_thinking: true },
-          reasoning_budget: 16384,
-        },
-      }),
+    const anthropic = new Anthropic({ apiKey });
+    
+    const message = await anthropic.messages.create({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 8192,
+      system: systemPrompt,
+      messages: [
+        { role: 'user', content: input },
+      ],
     });
 
-    if (!response.ok) {
-      const errBody = await response.text();
-      console.error('NVIDIA API error:', response.status, errBody);
-      return res.status(502).json({ error: 'Erro na API NVIDIA' });
-    }
-
-    const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || '';
+    const text = message.content[0]?.type === 'text' ? message.content[0].text : '';
 
     return res.status(200).json({ output: text });
   } catch (err) {

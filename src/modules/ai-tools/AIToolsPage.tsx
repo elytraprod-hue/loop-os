@@ -350,45 +350,33 @@ export const AIToolsPage = () => {
 
   return (
     <div className="animate-fadeUp">
-      <div className="page-hero" style={{ marginBottom: 28 }}>
-        <h1>Frame AI</h1>
-        <p>Acelere a pré-produção, comercial e pós-produção do seu estúdio audiovisual</p>
+      <div className="mb-7">
+        <h1 className="font-display font-black text-4xl text-[#e8e8e8]">Frame AI</h1>
+        <p className="text-[#aaaaaa] text-sm mt-1">Acelere a pré-produção, comercial e pós-produção do seu estúdio audiovisual</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 24, alignItems: 'start' }}>
+      <div className="grid grid-cols-[240px_1fr] gap-6 items-start">
         
         {/* Left Side: Category Sidebar */}
-        <div className="glass" style={{ borderRadius: 16, padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 8, paddingBottom: 12, borderBottom: '1px solid var(--glass-border)' }}>
-            <Brain size={18} color="var(--accent)" />
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15 }}>Menu Inteligente</span>
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 flex flex-col gap-5">
+          <div className="flex items-center gap-2 pl-2 pb-3 border-b border-white/10">
+            <Brain size={18} className="text-orange-500" />
+            <span className="font-display font-extrabold text-sm text-[#e8e8e8]">Menu Inteligente</span>
           </div>
 
           {toolCategories.map(cat => (
-            <div key={cat.category} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', paddingLeft: 8 }}>
+            <div key={cat.category} className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider pl-2">
                 {cat.category}
               </span>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <div className="flex flex-col gap-0.5">
                 {cat.tools.map(t => {
                   const isSelected = activeToolId === t.id;
                   return (
                     <button
                       key={t.id}
                       onClick={() => handleSelectTool(t.id)}
-                      style={{
-                        padding: '8px 12px',
-                        borderRadius: 8,
-                        background: isSelected ? 'var(--accent-dim)' : 'transparent',
-                        color: isSelected ? 'var(--accent)' : 'var(--text-secondary)',
-                        fontSize: 12,
-                        fontWeight: isSelected ? 700 : 500,
-                        cursor: 'pointer',
-                        width: '100%',
-                        textAlign: 'left',
-                        border: isSelected ? '1px solid var(--accent-border)' : '1px solid transparent',
-                        transition: 'all 0.15s'
-                      }}
+                      className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer w-full text-left border transition-all ${isSelected ? 'bg-orange-500/10 text-orange-500 border-orange-500/30' : 'text-gray-400 border-transparent hover:bg-white/5'}`}
                     >
                       {t.name}
                     </button>
@@ -400,30 +388,29 @@ export const AIToolsPage = () => {
         </div>
 
         {/* Center/Right Panels Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 24, alignItems: 'start' }}>
+        <div className="grid grid-cols-[1fr_1.2fr] gap-6 items-start">
           
           {/* Inputs Section */}
-          <div className="glass" style={{ padding: 24, borderRadius: 16, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 480 }}>
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col justify-between min-h-[480px]">
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, fontFamily: 'var(--font-display)' }}>
+              <h2 className="font-display font-black text-lg text-[#e8e8e8] m-0">
                 {activeTool.name.toUpperCase()}
               </h2>
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 20px 0' }}>
+              <p className="text-xs text-gray-400 my-1 mb-5">
                 {activeTool.desc}
               </p>
 
-              <form onSubmit={handleExecute} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <form onSubmit={handleExecute} className="flex flex-col gap-3.5">
                 {activeTool.fields.map(f => (
                   <div key={f.name}>
-                    <label style={{ display: 'block', fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6, fontWeight: 700 }}>
+                    <label className="block text-[11px] text-gray-500 uppercase tracking-wider mb-1.5 font-bold">
                       {f.label}
                     </label>
                     {f.type === 'select' ? (
                       <select
-                        className="input-base"
+                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[#e8e8e8] focus:border-orange-500/50 focus:outline-none w-full text-sm"
                         value={formValues[f.name] || ''}
                         onChange={(e) => setFormValues(prev => ({ ...prev, [f.name]: e.target.value }))}
-                        style={{ background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 8, fontSize: 13, padding: '10px 14px' }}
                       >
                         <option value="">Selecione uma opção...</option>
                         {(f.options ?? []).map(opt => (
@@ -432,21 +419,19 @@ export const AIToolsPage = () => {
                       </select>
                     ) : f.type === 'textarea' ? (
                       <textarea
-                        className="input-base"
+                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[#e8e8e8] placeholder:text-[#666] focus:border-orange-500/50 focus:outline-none w-full text-sm resize-y"
                         rows={f.rows || 4}
                         placeholder={f.placeholder}
                         value={formValues[f.name] || ''}
                         onChange={(e) => setFormValues(prev => ({ ...prev, [f.name]: e.target.value }))}
-                        style={{ fontSize: 13, resize: 'vertical' }}
                       />
                     ) : (
                       <input
-                        className="input-base"
+                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[#e8e8e8] placeholder:text-[#666] focus:border-orange-500/50 focus:outline-none w-full text-sm"
                         type="text"
                         placeholder={f.placeholder}
                         value={formValues[f.name] || ''}
                         onChange={(e) => setFormValues(prev => ({ ...prev, [f.name]: e.target.value }))}
-                        style={{ fontSize: 13 }}
                       />
                     )}
                   </div>
@@ -456,8 +441,7 @@ export const AIToolsPage = () => {
 
             <button
               onClick={handleExecute}
-              className="btn btn--primary"
-              style={{ width: '100%', padding: '14px 24px', fontSize: 13, fontWeight: 700, borderRadius: 10, marginTop: 24, justifyContent: 'center' }}
+              className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-6 py-3.5 transition-all w-full flex items-center justify-center gap-2 mt-6 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
@@ -466,32 +450,29 @@ export const AIToolsPage = () => {
           </div>
 
           {/* Outputs Section */}
-          <div className="glass" style={{ borderRadius: 16, minHeight: 480, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl min-h-[480px] flex flex-col overflow-hidden">
             
             {/* Header controls bar */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.1)' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)' }}>RESULTADO GERADO</span>
-              <div style={{ display: 'flex', gap: 6 }}>
+            <div className="flex items-center justify-between p-3.5 border-b border-white/10 bg-black/10">
+              <span className="text-[11px] font-bold text-gray-400">RESULTADO GERADO</span>
+              <div className="flex gap-1.5">
                 <button
                   onClick={handleCopy}
                   disabled={!output}
-                  className="btn btn--sm btn--secondary"
-                  style={{ padding: '6px 12px', fontSize: 11, borderRadius: 8, opacity: output ? 1 : 0.5, cursor: output ? 'pointer' : 'default' }}
+                  className="bg-white/5 hover:bg-white/10 border border-white/10 text-[#e8e8e8] rounded-lg px-3 py-1.5 text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Copiar
                 </button>
                 <button
                   onClick={handleDownload}
                   disabled={!output}
-                  className="btn btn--sm btn--secondary"
-                  style={{ padding: '6px 12px', fontSize: 11, borderRadius: 8, opacity: output ? 1 : 0.5, cursor: output ? 'pointer' : 'default' }}
+                  className="bg-white/5 hover:bg-white/10 border border-white/10 text-[#e8e8e8] rounded-lg px-3 py-1.5 text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Baixar .TXT
                 </button>
                 <button
                   onClick={handleClear}
-                  className="btn btn--sm btn--secondary"
-                  style={{ padding: '6px 12px', fontSize: 11, borderRadius: 8, border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--danger)' }}
+                  className="bg-white/5 hover:bg-white/10 border border-red-500/30 text-red-400 rounded-lg px-3 py-1.5 text-xs transition-all"
                 >
                   Limpar
                 </button>
@@ -499,20 +480,20 @@ export const AIToolsPage = () => {
             </div>
 
             {/* Simulated terminal content */}
-            <div style={{ flex: 1, padding: 24, overflowY: 'auto', background: 'rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', justifyContent: output || loading ? 'flex-start' : 'center', alignItems: output || loading ? 'stretch' : 'center' }}>
+            <div className="flex-1 p-6 overflow-y-auto bg-black/15 flex flex-col justify-start items-stretch">
               {loading ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, color: 'var(--text-secondary)' }}>
-                  <Loader2 size={32} className="animate-spin" color="var(--accent)" />
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>A inteligência artificial está gerando seu conteúdo...</span>
+                <div className="flex flex-col items-center gap-3 text-gray-400">
+                  <Loader2 size={32} className="animate-spin text-orange-500" />
+                  <span className="text-sm font-semibold">A inteligência artificial está gerando seu conteúdo...</span>
                 </div>
               ) : output ? (
-                <div style={{ color: '#fff', fontSize: 13, lineHeight: 1.6, whiteSpace: 'pre-wrap', fontFamily: 'var(--font-mono)' }}>
+                <div className="text-white text-sm leading-relaxed whitespace-pre-wrap font-mono">
                   {output}
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, color: 'var(--text-muted)', textAlign: 'center', padding: '0 24px' }}>
-                  <Brain size={42} color="var(--text-muted)" style={{ opacity: 0.5 }} />
-                  <span style={{ fontSize: 13, fontWeight: 500 }}>
+                <div className="flex flex-col items-center gap-3 text-gray-500 text-center px-6">
+                  <Brain size={42} className="opacity-50" />
+                  <span className="text-sm font-medium">
                     Preencha os campos do formulário à esquerda <br /> e clique em gerar para ver o resultado aqui.
                   </span>
                 </div>
@@ -521,10 +502,9 @@ export const AIToolsPage = () => {
 
             {/* Refine footer bar */}
             {output && !loading && (
-              <div style={{ display: 'flex', gap: 8, padding: 16, borderTop: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)' }}>
+              <div className="flex gap-2 p-4 border-t border-white/10 bg-black/20">
                 <input
-                  className="input-base"
-                  style={{ fontSize: 13, padding: '10px 14px', flex: 1 }}
+                  className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[#e8e8e8] placeholder:text-[#666] focus:border-orange-500/50 focus:outline-none flex-1 text-sm"
                   placeholder="Deseja alterar algo? Digite o ajuste aqui..."
                   value={refineInput}
                   onChange={(e) => setRefineInput(e.target.value)}
@@ -532,8 +512,7 @@ export const AIToolsPage = () => {
                 />
                 <button
                   onClick={handleRefine}
-                  className="btn btn--primary"
-                  style={{ padding: '10px 20px', fontSize: 12, borderRadius: 10 }}
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl px-5 py-2.5 text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!refineInput.trim()}
                 >
                   Refinar

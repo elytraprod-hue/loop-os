@@ -26,86 +26,33 @@ interface SidebarProps {
 
 export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
   return (
-    <aside
-      style={{
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: collapsed ? 96 : 238,
-        background: 'linear-gradient(180deg, rgba(17,17,17,.92) 0%, rgba(13,13,13,.96) 100%)',
-        backdropFilter: 'blur(24px) saturate(1.4)',
-        WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
-        borderRight: '1px solid var(--glass-border)',
-        display: 'flex',
-        flexDirection: 'column',
-        zIndex: 100,
-        transition: 'width .25s ease',
-        overflow: 'hidden',
-      }}
-    >
+    <aside className={`fixed left-0 top-0 h-screen bg-white/5 backdrop-blur-xl border-r border-white/10 flex flex-col z-100 transition-all duration-250 overflow-hidden ${collapsed ? 'w-24' : 'w-[238px]'}`}>
       {/* Logo */}
-      <div
-        style={{
-          height: 72,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          padding: collapsed ? 0 : '0 24px',
-          borderBottom: '1px solid var(--glass-border)',
-          gap: 10,
-        }}
-      >
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 10,
-            background: 'var(--accent)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <span style={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>{tenant.name.charAt(0)}</span>
+      <div className={`h-18 flex items-center ${collapsed ? 'justify-center' : 'justify-start'} ${collapsed ? '' : 'px-6'} border-b border-white/10 gap-2.5`}>
+        <div className="w-8 h-8 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0">
+          <span className="text-white font-extrabold text-sm">{tenant.name.charAt(0)}</span>
         </div>
         {!collapsed && (
-          <span
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontWeight: 800,
-              fontSize: 18,
-              color: 'var(--accent)',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <span className="font-display font-black text-orange-500 text-xl whitespace-nowrap">
             {tenant.name}
           </span>
         )}
       </div>
 
       {/* Navigation */}
-      <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
+      <nav className="flex-1 p-2 overflow-y-auto">
         {navigation.map((item) => (
           <NavLink
             key={item.name}
             to={item.href}
-            style={({ isActive }) => ({
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              padding: collapsed ? '12px 0' : '10px 16px',
-              marginBottom: 4,
-              borderRadius: 10,
-              justifyContent: collapsed ? 'center' : 'flex-start',
-              color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
-              background: isActive ? 'var(--accent-dim)' : 'transparent',
-              borderLeft: isActive ? '3px solid var(--accent)' : '3px solid transparent',
-              transition: 'all .15s',
-              fontSize: 14,
-              fontWeight: isActive ? 600 : 400,
-            })}
+            className={({ isActive }) => `
+              flex items-center gap-3 p-2.5 mb-1 rounded-xl ${collapsed ? 'justify-center' : 'justify-start px-4'}
+              transition-all duration-150 text-sm
+              ${isActive 
+                ? 'border-l-[3px] border-orange-500 bg-orange-500/10 text-orange-400 font-semibold' 
+                : 'text-gray-400 hover:bg-white/8'
+              }
+            `}
           >
             <item.icon size={20} />
             {!collapsed && <span>{item.name}</span>}
@@ -114,20 +61,10 @@ export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
       </nav>
 
       {/* Collapse toggle */}
-      <div style={{ padding: '12px 8px', borderTop: '1px solid var(--glass-border)' }}>
+      <div className="p-2 border-t border-white/10">
         <button
           onClick={onToggle}
-          className="btn-icon btn-ghost"
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            padding: collapsed ? 0 : '0 8px',
-            gap: 8,
-            color: 'var(--text-muted)',
-            fontSize: 13,
-          }}
+          className="w-full flex items-center justify-center gap-2 text-gray-500 text-sm hover:text-gray-300 transition-colors"
         >
           {collapsed ? <ChevronRight size={18} /> : <><ChevronLeft size={18} /> Recolher</>}
         </button>

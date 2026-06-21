@@ -1,7 +1,8 @@
 // src/modules/analytics/AnalyticsPage.tsx
-import { BarChart3, TrendingUp, Users, DollarSign, Film } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, Film } from 'lucide-react';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { useWorkspaceQuery, useClientsQuery, useProjectsQuery, useTransactionsQuery } from '../../hooks/useDbQuery';
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export const AnalyticsPage = () => {
   const { data: workspace } = useWorkspaceQuery();
@@ -34,29 +35,134 @@ export const AnalyticsPage = () => {
     { icon: TrendingUp, label: 'Conversão', value: `${conversionRate}%`, change: 'cliente → projeto' },
   ];
 
+  // Prepare data for charts
+  const projectStatusData = [
+    { name: 'Briefing', value: projects?.filter(p => p.status === 'briefing').length || 0 },
+    { name: 'Pré-Produção', value: projects?.filter(p => p.status === 'pre_production').length || 0 },
+    { name: 'Produção', value: projects?.filter(p => p.status === 'production').length || 0 },
+    { name: 'Pós-Produção', value: projects?.filter(p => p.status === 'post_production').length || 0 },
+    { name: 'Revisão', value: projects?.filter(p => p.status === 'review').length || 0 },
+    { name: 'Entregue', value: projects?.filter(p => p.status === 'delivered').length || 0 },
+  ];
+
+  const clientStatusData = [
+    { name: 'Ativos', value: clients?.filter(c => c.status === 'active').length || 0 },
+    { name: 'Inativos', value: clients?.filter(c => c.status === 'inactive').length || 0 },
+    { name: 'Prospects', value: clients?.filter(c => c.status === 'prospect').length || 0 },
+  ];
+
+  // Monthly revenue/expense data
+  const monthlyData = transactions?.reduce((acc: any[], t) => {
+    const month = new Date(t.date).toLocaleString('pt-BR', { month: 'short' });
+    const existing = acc.find(d => d.month === month);
+    if (existing) {
+      if (t.type === 'income') existing.income += Number(t.amount);
+      if (t.type === 'expense') existing.expense += Number(t.amount);
+    } else {
+      acc.push({
+        month,
+        income: t.type === 'income' ? Number(t.amount) : 0,
+        expense: t.type === 'expense' ? Number(t.amount) : 0,
+      });
+    }
+    return acc;
+  }, []) || [];
+
+  const COLORS = ['#f97316', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+
   return (
     <div className="animate-fadeUp">
-      <div className="page-hero">
-        <h1>Análises</h1>
-        <p>Métricas e indicadores de produção</p>
+      <div className="mb-8">
+        <h1 className="font-display font-black text-4xl text-[#e8e8e8]">Análises</h1>
+        <p className="text-[#aaaaaa] text-sm mt-1">Métricas e indicadores de produção</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
-          <div key={s.label} className="glass" style={{ padding: 20, borderRadius: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <s.icon size={16} color="var(--accent)" />
-              <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{s.label}</span>
+          <div key={s.label} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5">
+            <div className="flex items-center gap-2.5 mb-2">
+              <s.icon size={16} className="text-orange-500" />
+              <span className="text-gray-400 text-xs">{s.label}</span>
             </div>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 22 }}>{s.value}</div>
-            <div style={{ color: 'var(--success)', fontSize: 12, marginTop: 4 }}>{s.change}</div>
+            <div className="font-display font-black text-2xl text-[#e8e8e8]">{s.value}</div>
+            <div className="text-green-400 text-xs mt-1">{s.change}</div>
           </div>
         ))}
       </div>
 
-      <div className="glass" style={{ padding: 32, borderRadius: 20, textAlign: 'center' }}>
-        <BarChart3 size={40} color="var(--text-muted)" style={{ marginBottom: 16 }} />
-        <p style={{ color: 'var(--text-secondary)' }}>Gráficos detalhados em breve.</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+        {/* Project Status Pie Chart */}
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+          <h3 className="text-lg font-bold mb-5 text-[#e8e8e8]">Status dos Projetos</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={projectStatusData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {projectStatusData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip 
+                contentStyle={{ backgroundColor: 'rgba(13,13,13,0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+                itemStyle={{ color: '#e8e8e8' }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Client Status Pie Chart */}
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+          <h3 className="text-lg font-bold mb-5 text-[#e8e8e8]">Status dos Clientes</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={clientStatusData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {clientStatusData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip 
+                contentStyle={{ backgroundColor: 'rgba(13,13,13,0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+                itemStyle={{ color: '#e8e8e8' }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Monthly Revenue/Expense Line Chart */}
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+        <h3 className="text-lg font-bold mb-5 text-[#e8e8e8]">Fluxo Financeiro Mensal</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={monthlyData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+            <XAxis dataKey="month" stroke="#aaaaaa" />
+            <YAxis stroke="#aaaaaa" />
+            <Tooltip
+              contentStyle={{ backgroundColor: 'rgba(13,13,13,0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+              itemStyle={{ color: '#e8e8e8' }}
+            />
+            <Legend />
+            <Line type="monotone" dataKey="income" stroke="#10b981" strokeWidth={2} name="Receita" />
+            <Line type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} name="Despesas" />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
