@@ -48,8 +48,9 @@ export const AnalyticsPage = () => {
   const clientStatusData = [
     { name: 'Ativos', value: clients?.filter(c => c.status === 'active').length || 0 },
     { name: 'Inativos', value: clients?.filter(c => c.status === 'inactive').length || 0 },
-    { name: 'Prospects', value: clients?.filter(c => c.status === 'prospect').length || 0 },
   ];
+
+  const COLORS = ['#f97316', '#fb923c', '#fdba74', '#fcd34d', '#fde68a', '#fef3c7'];
 
   // Monthly revenue/expense data
   const monthlyData = transactions?.reduce((acc: any[], t) => {
@@ -68,8 +69,6 @@ export const AnalyticsPage = () => {
     return acc;
   }, []) || [];
 
-  const COLORS = ['#f97316', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
-
   return (
     <div className="animate-fadeUp">
       <div className="mb-8">
@@ -78,13 +77,13 @@ export const AnalyticsPage = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((s) => (
-          <div key={s.label} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5">
+        {stats.map((s, index) => (
+          <div key={s.label} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 animate-slideUp hover:bg-white/8 transition-all duration-300 hover:border-white/15 hover:shadow-lg hover:shadow-orange-500/10" style={{ animationDelay: `${index * 0.1}s` }}>
             <div className="flex items-center gap-2.5 mb-2">
               <s.icon size={16} className="text-orange-500" />
               <span className="text-gray-400 text-xs">{s.label}</span>
             </div>
-            <div className="font-display font-black text-2xl text-[#e8e8e8]">{s.value}</div>
+            <div className="font-display font-black text-2xl text-white">{s.value}</div>
             <div className="text-green-400 text-xs mt-1">{s.change}</div>
           </div>
         ))}
@@ -92,8 +91,8 @@ export const AnalyticsPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
         {/* Project Status Pie Chart */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-          <h3 className="text-lg font-bold mb-5 text-[#e8e8e8]">Status dos Projetos</h3>
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 animate-slideUp hover:bg-white/8 transition-all duration-300 hover:border-white/15" style={{ animationDelay: '0.4s' }}>
+          <h3 className="text-lg font-bold mb-5 text-white">Status dos Projetos</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -105,6 +104,8 @@ export const AnalyticsPage = () => {
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
+                animationDuration={1000}
+                animationEasing="ease-out"
               >
                 {projectStatusData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -119,8 +120,8 @@ export const AnalyticsPage = () => {
         </div>
 
         {/* Client Status Pie Chart */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-          <h3 className="text-lg font-bold mb-5 text-[#e8e8e8]">Status dos Clientes</h3>
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 animate-slideUp hover:bg-white/8 transition-all duration-300 hover:border-white/15" style={{ animationDelay: '0.5s' }}>
+          <h3 className="text-lg font-bold mb-5 text-white">Status dos Clientes</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -132,6 +133,8 @@ export const AnalyticsPage = () => {
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
+                animationDuration={1000}
+                animationEasing="ease-out"
               >
                 {clientStatusData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -147,8 +150,8 @@ export const AnalyticsPage = () => {
       </div>
 
       {/* Monthly Revenue/Expense Line Chart */}
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-        <h3 className="text-lg font-bold mb-5 text-[#e8e8e8]">Fluxo Financeiro Mensal</h3>
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 animate-slideUp hover:bg-white/8 transition-all duration-300 hover:border-white/15" style={{ animationDelay: '0.6s' }}>
+        <h3 className="text-lg font-bold mb-5 text-white">Fluxo Financeiro Mensal</h3>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={monthlyData}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -159,8 +162,8 @@ export const AnalyticsPage = () => {
               itemStyle={{ color: '#e8e8e8' }}
             />
             <Legend />
-            <Line type="monotone" dataKey="income" stroke="#10b981" strokeWidth={2} name="Receita" />
-            <Line type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} name="Despesas" />
+            <Line type="monotone" dataKey="income" stroke="#10b981" strokeWidth={2} name="Receita" animationDuration={1500} animationEasing="ease-out" dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
+            <Line type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} name="Despesas" animationDuration={1500} animationEasing="ease-out" dot={{ fill: '#ef4444', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>
